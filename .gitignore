@@ -9,3 +9,8 @@ __pycache__/
 *.zip
 .aws/
 .localstack/
+
+# Local working files — not part of the graded submission
+CLAUDE.md
+LAB1-TODO.md
+Lab_*.html
