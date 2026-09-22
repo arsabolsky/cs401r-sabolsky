@@ -13,4 +13,5 @@ __pycache__/
 # Local working files — not part of the graded submission
 CLAUDE.md
 LAB1-TODO.md
+LAB1-INSTRUCTION-FEEDBACK.md
 Lab_*.html
