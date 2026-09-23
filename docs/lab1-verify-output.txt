@@ -35,12 +35,10 @@
   ✓ S No AWS credentials in git history (scripts/check-secrets.sh)
   ✓ A1 Architecture diagram submitted
   ✓ S Studio shutdown screenshot submitted
-  ✗ S ADR document submitted — docs/lab1-adr.md MISSING
-  ✗ S Cost estimate document submitted — docs/lab1-cost-estimate.md MISSING
+  ✓ S ADR document submitted
+  ✓ S Cost estimate document submitted
 
 ========================================
- Results: 27 passed  2 failed
+ Results: 29 passed  0 failed
 ========================================
-
-Fix the failing checks above and re-run: bash scripts/verify-lab1.sh
 
