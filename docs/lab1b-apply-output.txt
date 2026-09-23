@@ -1,0 +1,66 @@
+
+Warning: Deprecated Parameter
+
+The parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile"
+instead.
+module.iam.aws_iam_role.ml_engineer: Creating...
+module.iam.aws_iam_policy.this: Creating...
+module.vpc.aws_vpc.this: Creating...
+module.vpc.aws_security_group.this: Creating...
+module.storage.aws_s3_bucket.data: Creating...
+module.iam.aws_iam_policy.this: Creation complete after 0s [id=arn:aws:iam::573693339848:policy/NorthStarMLEngineerPolicy]
+module.iam.aws_iam_role.ml_engineer: Creation complete after 0s [id=northstar-dev-MLEngineer]
+module.iam.aws_iam_role_policy_attachment.this: Creating...
+module.iam.aws_iam_role_policy_attachment.this: Creation complete after 0s[id=northstar-dev-MLEngineer-20260923055141373100000002]
+module.storage.aws_s3_bucket.data: Creation complete after 2s [id=northstar-dev-data-573693339848]
+module.storage.aws_s3_bucket_public_access_block.this: Creating...
+module.storage.aws_s3_bucket_server_side_encryption_configuration.this: Creating...
+module.storage.aws_s3_bucket_versioning.this: Creating...
+module.storage.aws_s3_object.prefixes["raw/"]: Creating...
+module.storage.aws_s3_object.prefixes["features/"]: Creating...
+module.storage.aws_s3_object.prefixes["artifacts/"]: Creating...
+module.storage.aws_s3_object.prefixes["processed/"]: Creating...
+module.storage.aws_s3_bucket_public_access_block.this: Creation complete after 0s [id=northstar-dev-data-573693339848]
+module.storage.aws_s3_object.prefixes["processed/"]: Creation complete after 1s [id=processed/]
+module.storage.aws_s3_object.prefixes["features/"]: Creation complete after 1s [id=features/]
+module.storage.aws_s3_object.prefixes["artifacts/"]: Creation complete after 1s [id=artifacts/]
+module.storage.aws_s3_object.prefixes["raw/"]: Creation complete after 1s [id=raw/]
+module.storage.aws_s3_bucket_server_side_encryption_configuration.this: Creation complete after 1s [id=northstar-dev-data-573693339848]
+module.vpc.aws_security_group.this: Creation complete after 3s [id=sg-0f3d8adcede3f93bd]
+module.storage.aws_s3_bucket_versioning.this: Creation complete after 2s [id=northstar-dev-data-573693339848]
+module.vpc.aws_vpc.this: Still creating... [00m10s elapsed]
+module.vpc.aws_vpc.this: Creation complete after 12s [id=vpc-0810e087212673d3c]
+module.vpc.aws_internet_gateway.this: Creating...
+module.vpc.aws_subnet.public: Creating...
+module.vpc.aws_internet_gateway.this: Creation complete after 1s [id=igw-0aec9522cd8e2644a]
+module.vpc.aws_route_table.this: Creating...
+module.vpc.aws_route_table.this: Creation complete after 1s [id=rtb-0d49c387344a41eee]
+module.vpc.aws_subnet.public: Still creating... [00m10s elapsed]
+module.vpc.aws_subnet.public: Creation complete after 11s [id=subnet-097e8818aa7e26008]
+module.vpc.aws_route_table_association.this: Creating...
+module.sagemaker.aws_sagemaker_domain.this: Creating...
+module.vpc.aws_route_table_association.this: Creation complete after 1s [id=rtbassoc-037283ff2fda6646b]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [00m10s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [00m20s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [00m30s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [00m40s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [00m50s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [01m00s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [01m10s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [01m20s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [01m30s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [01m40s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Still creating... [01m50s elapsed]
+module.sagemaker.aws_sagemaker_domain.this: Creation complete after 1m56s [id=d-jztrjji1q96u]
+module.sagemaker.aws_sagemaker_user_profile.this: Creating...
+module.sagemaker.aws_sagemaker_user_profile.this: Creation complete after 5s [id=arn:aws:sagemaker:us-east-1:573693339848:user-profile/d-jztrjji1q96u/MLEngineer]
+
+Apply complete! Resources: 19 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+ml_engineer_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-MLEngineer"
+public_subnet_id = "subnet-097e8818aa7e26008"
+s3_bucket_name = "northstar-dev-data-573693339848"
+sagemaker_domain_id = "d-jztrjji1q96u"
+vpc_id = "vpc-0810e087212673d3c"

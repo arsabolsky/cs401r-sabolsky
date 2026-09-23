@@ -57,6 +57,10 @@ resource "aws_sagemaker_domain" "this" {
     sharing_settings {
       notebook_output_option = "Disabled"
     }
+    # AWS attaches this block server-side even when unset. Declaring it
+    # explicitly (empty) stops every `terraform apply` from showing a
+    # perpetual "1 to change" diff to remove something AWS keeps re-adding.
+    studio_web_portal_settings {}
   }
   retention_policy {
     home_efs_file_system = "Delete"
