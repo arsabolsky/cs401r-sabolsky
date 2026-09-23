@@ -37,10 +37,10 @@ local-validate:
 	  awslocal iam list-roles --query 'Roles[?starts_with(RoleName, `northstar`)].RoleName'; \
 	  echo; \
 	  echo "== awslocal ec2 describe-vpcs =="; \
-	  awslocal ec2 describe-vpcs --query 'Vpcs[*].{Id:VpcId,CIDR:CidrBlock}'; \
+	  awslocal ec2 describe-vpcs --region us-east-1 --query 'Vpcs[*].{Id:VpcId,CIDR:CidrBlock}'; \
 	  echo; \
 	  echo "== awslocal ec2 describe-subnets =="; \
-	  awslocal ec2 describe-subnets --query 'Subnets[*].{Id:SubnetId,AZ:AvailabilityZone,CIDR:CidrBlock}'; \
+	  awslocal ec2 describe-subnets --region us-east-1 --query 'Subnets[*].{Id:SubnetId,AZ:AvailabilityZone,CIDR:CidrBlock}'; \
 	} 2>&1 | tee $(LOCAL_OUT)
 	@echo
 	@echo "Saved to $(LOCAL_OUT) — commit it."
