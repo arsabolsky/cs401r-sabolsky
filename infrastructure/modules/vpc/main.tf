@@ -2,11 +2,13 @@
 # Required resources (Task B1). Only these belong in this module:
 #
 #   aws_vpc
-#   aws_subnet                      public only in Lab 1
+#   aws_subnet                      public (Lab 1) + private (Lab 2)
 #   aws_internet_gateway
-#   aws_route_table
-#   aws_route_table_association
-#   aws_security_group
+#   aws_eip, aws_nat_gateway        Lab 2; skipped when enable_nat_gateway = false
+#   aws_route_table                 public (Lab 1) + private (Lab 2)
+#   aws_route                       Lab 2; private 0.0.0.0/0 -> NAT, same toggle
+#   aws_route_table_association     public (Lab 1) + private (Lab 2)
+#   aws_security_group              Lab 2 adds vpc_id, VPC-CIDR ingress, Glue self-rule
 #
 # Name everything from var.project and var.environment. A hardcoded
 # project-environment literal anywhere under modules/ fails the rubric grep.
@@ -39,6 +41,13 @@ resource "aws_subnet" "public" {
   tags                    = { Name = "${var.project}-${var.environment}-public-1" }
 }
 
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.this.id
+  cidr_block        = var.private_subnet_cidr
+  availability_zone = var.availability_zone
+  tags              = { Name = "${var.project}-${var.environment}-private-1" }
+}
+
 # STEP 3 — aws_internet_gateway
 # Docs: .../resources/internet_gateway
 # Required: vpc_id. Same pattern as Step 2 — point it at aws_vpc.this.id.
@@ -46,6 +55,22 @@ resource "aws_subnet" "public" {
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
   tags   = { Name = "${var.project}-${var.environment}-igw" }
+}
+
+resource "aws_nat_gateway" "this" {
+  allocation_id = aws_eip.this[0].id
+  subnet_id     = aws_subnet.public.id
+  count         = var.enable_nat_gateway ? 1 : 0
+  tags          = { Name = "${var.project}-${var.environment}-nat" }
+  depends_on    = [aws_internet_gateway.this]
+}
+
+# Lab 2 — Elastic IP for the NAT Gateway (skipped when enable_nat_gateway = false)
+resource "aws_eip" "this" {
+  domain     = "vpc"
+  count      = var.enable_nat_gateway ? 1 : 0
+  tags       = { Name = "${var.project}-${var.environment}-eip" }
+  depends_on = [aws_internet_gateway.this]
 }
 
 # STEP 4 — aws_route_table
@@ -78,6 +103,25 @@ resource "aws_route_table_association" "this" {
   route_table_id = aws_route_table.this.id
 }
 
+# Lab 2 — private route table. The 0.0.0.0/0 -> NAT route is a separate
+# aws_route with the NAT's count, so it disappears when NAT is disabled.
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.this.id
+  tags   = { Name = "${var.project}-${var.environment}-private-rt" }
+}
+
+resource "aws_route_table_association" "private" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route" "private_nat" {
+  count                  = var.enable_nat_gateway ? 1 : 0
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.this[0].id
+}
+
 # STEP 6 — aws_security_group
 # Docs: .../resources/security_group
 # Required-in-practice: vpc_id, plus ingress/egress rules as nested blocks
@@ -97,12 +141,19 @@ resource "aws_route_table_association" "this" {
 #   }
 # Give it a Name tag ("...-sagemaker-sg").
 resource "aws_security_group" "this" {
-  tags = { Name = "${var.project}-${var.environment}-sagemaker-sg" }
+  tags   = { Name = "${var.project}-${var.environment}-sagemaker-sg" }
+  vpc_id = aws_vpc.this.id
   ingress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.vpc_cidr]
+  }
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
   }
   egress {
     from_port   = 0
