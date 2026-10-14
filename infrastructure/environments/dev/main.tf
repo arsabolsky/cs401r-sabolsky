@@ -46,3 +46,14 @@ module "glue" {
   availability_zone      = module.vpc.private_subnet_availability_zone
   security_group_id      = module.vpc.security_group_id
 }
+
+# depends_on: CreateFeatureGroup validates the role immediately, so the DataEngineer
+# policy attachment must exist first rather than racing it.
+module "feature_store" {
+  source      = "../../modules/feature_store"
+  project     = var.project
+  environment = var.environment
+  bucket_name = module.storage.bucket_name
+  role_arn    = module.iam.data_engineer_role_arn
+  depends_on  = [module.iam]
+}

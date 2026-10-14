@@ -25,8 +25,8 @@ locals {
   }
 }
 
-resource "aws_sage_maker_feature_group" "feature_group" {
-  name                           = "${var.project}-${var.environment}-customer-features"
+resource "aws_sagemaker_feature_group" "feature_group" {
+  feature_group_name             = "${var.project}-${var.environment}-customer-features"
   record_identifier_feature_name = "customer_id"
   event_time_feature_name        = "event_time"
   role_arn                       = var.role_arn
@@ -35,7 +35,7 @@ resource "aws_sage_maker_feature_group" "feature_group" {
   }
   offline_store_config {
     s3_storage_config {
-      s3_uri = "s3://${var.s3_bucket_name}/features/offline-store/"
+      s3_uri = "s3://${var.bucket_name}/features/offline-store/"
     }
   }
   # One feature_definition block per entry in local.feature_definitions.
