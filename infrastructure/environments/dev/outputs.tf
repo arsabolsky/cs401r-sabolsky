@@ -1,7 +1,5 @@
 
-# Surface what later labs need. Lab 2 reads these from `terraform output`,
-# and scripts/verify-lab1.sh reads ALL FIVE of them with `terraform output
-# -raw`, so every one must exist (uncommented and wired) before you run it.
+# Read by the verify scripts and later labs via `terraform output -raw`.
 
 output "vpc_id" {
   description = "ID of the VPC"

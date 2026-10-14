@@ -9,3 +9,8 @@ variable "environment" {
   description = "Deployment environment (dev, staging, prod)"
   type        = string
 }
+
+variable "bucket_arn" {
+  description = "ARN of the S3 bucket to be used for artifacts and features"
+  type        = string
+}

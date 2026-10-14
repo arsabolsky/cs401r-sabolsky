@@ -1,10 +1,5 @@
-# ── environments/local ───────────────────────────────────────────────────────
-# Calls the same modules as environments/dev. The sagemaker module is omitted
-# on purpose: SageMaker is not in LocalStack Community.
-#
-# These calls are live, not commented out, so `make local-validate` works the
-# moment your vpc, storage, and iam modules are implemented. Until then,
-# terraform validate still passes — an empty module is a valid module.
+# environments/local - same modules as dev, against LocalStack (make local-validate).
+# Only vpc, storage, iam: LocalStack here runs S3, IAM, EC2, STS - no SageMaker or Glue.
 
 module "vpc" {
   source      = "../../modules/vpc"

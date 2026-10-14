@@ -1,8 +1,4 @@
-# ── environments/local ───────────────────────────────────────────────────────
-# Same modules as environments/dev, pointed at LocalStack instead of AWS.
-# Nothing here costs money. Used only by Task B5 (make local-validate).
-#
-# Do not add a backend block: local state is fine for a throwaway emulator.
+# Provider pointed at LocalStack. No backend block: local state is fine here.
 
 terraform {
   required_version = ">= 1.5.0"

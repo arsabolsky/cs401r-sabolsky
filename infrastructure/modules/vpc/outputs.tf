@@ -1,5 +1,4 @@
-# Downstream modules and environments/dev/main.tf consume these.
-# Uncomment and wire up as you implement each resource.
+# Consumed by environments/*/main.tf and passed to other modules.
 
 output "vpc_id" {
   description = "ID of the VPC"

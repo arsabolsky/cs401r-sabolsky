@@ -1,8 +1,5 @@
-# ── environments/dev ─────────────────────────────────────────────────────────
-# Wire the four modules together here. Each module call passes var.project and
-# var.environment down; nothing in modules/ hardcodes a name.
-
-# Uncomment each block as you implement the module it calls.
+# environments/dev - wires the modules together. Names come from
+# var.project + var.environment; nothing in modules/ hardcodes one.
 
 module "vpc" {
   source             = "../../modules/vpc"

@@ -1,10 +1,5 @@
-# Task B3 - Remote State.
-#
-# Copy this file to backend.tf. scripts/bootstrap-state.sh creates the state
-# bucket and lock table and replaces 573693339848 below with your real
-# account ID (it also copies this file to backend.tf for you if you have not).
-# The bucket must exist BEFORE terraform init: a backend cannot bootstrap the
-# bucket that stores its own state.
+# Remote state. The bucket and lock table are created by
+# scripts/bootstrap-state.sh and must exist before `terraform init`.
 
 terraform {
   backend "s3" {
