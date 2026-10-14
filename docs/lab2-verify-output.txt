@@ -1,10 +1,10 @@
 NorthStar Lab 2 verification - account 573693339848, region us-east-1
 
 Task 1 - Platform infrastructure (25 pts)
-  PASS  private subnet exists                                subnet-04039a750c2829193
-  PASS  NAT gateway available                                nat-0ff2706b3c15e447e
-  PASS  domain InService                                     d-472zmzqorufp
-  PASS  domain in private subnet                             subnet-04039a750c2829193
+  PASS  private subnet exists                                subnet-07ae3a76ebc8482c0
+  PASS  NAT gateway available                                nat-051f4cb914410704a
+  PASS  domain InService                                     d-0xmzx8mifmfs
+  PASS  domain in private subnet                             subnet-07ae3a76ebc8482c0
   PASS  domain AppNetworkAccessType VpcOnly                  
   PASS  IAM role MLEngineer exists                           
   PASS  IAM role DataEngineer exists                         

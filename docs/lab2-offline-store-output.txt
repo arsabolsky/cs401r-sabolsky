@@ -1,0 +1,81 @@
+== NorthStar Lab 2 - Feature Store offline store evidence ==
+date: 2026-10-14T08:24:03Z   account: 573693339848   region: us-east-1
+
+== aws sagemaker describe-feature-group (status + offline store) ==
+{
+    "FeatureGroupName": "northstar-dev-customer-features",
+    "FeatureGroupStatus": "Created",
+    "OfflineStoreStatus": "Active",
+    "S3Uri": "s3://northstar-dev-data-573693339848/features/offline-store/",
+    "ResolvedOutputS3Uri": "s3://northstar-dev-data-573693339848/features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data",
+    "GlueTable": {
+        "TableName": "northstar_dev_customer_features_1791964491",
+        "Catalog": "AwsDataCatalog",
+        "Database": "sagemaker_featurestore"
+    }
+}
+
+== aws s3 ls s3://northstar-dev-data-573693339848/features/offline-store/ --recursive ==
+2026-10-14 02:03:58          0 features/offline-store//573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/northstar-dev-customer-features2026-10-14T07:54:51.803Z.txt
+2026-10-14 02:07:36      17790 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_0ba269721220d500.parquet
+2026-10-14 02:07:36      17523 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_0e41869d29622007.parquet
+2026-10-14 02:07:36      19442 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_158fa68b4a6f55ac.parquet
+2026-10-14 02:07:36      18638 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_1db9825d95d11a56.parquet
+2026-10-14 02:07:36      18495 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_2dd8023edfeac60e.parquet
+2026-10-14 02:07:36      17950 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_2ffce95a50f2a2f8.parquet
+2026-10-14 02:07:36      17903 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_3654ae1a001231fe.parquet
+2026-10-14 02:07:36      17319 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_384a8cc6d337d054.parquet
+2026-10-14 02:07:36      17870 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_39376222b84d0298.parquet
+2026-10-14 02:07:37      17885 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_3f8699a32959ce5d.parquet
+2026-10-14 02:07:36      17559 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_48b513f0cee00a12.parquet
+2026-10-14 02:07:36      19197 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_4c38eba9e9126f3f.parquet
+2026-10-14 02:07:36      18660 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_537b0c84a5beaccd.parquet
+2026-10-14 02:07:36      17588 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_56d159d2b1f6d69e.parquet
+2026-10-14 02:07:36      18348 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_5974d238c5ce774d.parquet
+2026-10-14 02:07:36      17929 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_5c648e8d464f18fe.parquet
+2026-10-14 02:07:36      19161 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_5f8a6aeb1ce61a4f.parquet
+2026-10-14 02:07:36      17272 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_67f31d5d40f72f8f.parquet
+2026-10-14 02:07:36      18657 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_690cbea9a6fdbd37.parquet
+2026-10-14 02:07:36      18133 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_6afada6e17731c2a.parquet
+2026-10-14 02:07:36      16747 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_6b3518c36f583d27.parquet
+2026-10-14 02:07:36      17538 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_713b78c76103f033.parquet
+2026-10-14 02:07:36      18238 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_746cb9471dc7e1af.parquet
+2026-10-14 02:07:36      18059 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_7737bd8117a083aa.parquet
+2026-10-14 02:07:36      18443 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_7d1fc9b69b8cec99.parquet
+2026-10-14 02:07:36      19271 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_80b815a29b8355db.parquet
+2026-10-14 02:07:36      18587 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_81a04dbd3176647b.parquet
+2026-10-14 02:07:36      17597 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_83522ed3d14defdd.parquet
+2026-10-14 02:07:36      18721 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_8449b2f7d69353ca.parquet
+2026-10-14 02:07:36      18515 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_877b7de8713ec8b9.parquet
+2026-10-14 02:07:36      18070 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_87d1e42a9e50e70a.parquet
+2026-10-14 02:07:36      18157 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_970cfe41c94baa5d.parquet
+2026-10-14 02:07:43      18144 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_9be1312796a3da13.parquet
+2026-10-14 02:07:36      20013 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_a1c461715034719c.parquet
+2026-10-14 02:07:36      17352 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_a2a29bcb2358f9b5.parquet
+2026-10-14 02:07:36      18036 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_a2f89011c72caf35.parquet
+2026-10-14 02:07:36      18205 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_a3e358fed9b0e7cf.parquet
+2026-10-14 02:07:36      17878 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_a44be890af90584f.parquet
+2026-10-14 02:07:43      17764 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_b94467aa6621ee8d.parquet
+2026-10-14 02:07:36      17506 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_ba445b5344ca92b6.parquet
+2026-10-14 02:07:36      17690 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_c865917b8b71c251.parquet
+2026-10-14 02:07:36      18433 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_cb71ed264a7b055e.parquet
+2026-10-14 02:07:36      18097 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_cc531c259e7d2d59.parquet
+2026-10-14 02:07:38      17034 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_cc56eac009723be2.parquet
+2026-10-14 02:07:36      19078 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_d7cfb972010685e8.parquet
+2026-10-14 02:07:36      18721 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_da23aaa5a3425691.parquet
+2026-10-14 02:07:36      17478 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_ed65b29cb5960627.parquet
+2026-10-14 02:07:36      17885 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_edf54f90eeaca0b1.parquet
+2026-10-14 02:07:36      18299 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_eed6b42cb1a6e470.parquet
+2026-10-14 02:07:36      17796 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_f4939d4c72e7e29b.parquet
+2026-10-14 02:07:36      18972 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_f5c41bb9e809a799.parquet
+2026-10-14 02:07:36      18918 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_fcfeff022dd3e118.parquet
+2026-10-14 02:07:36      17831 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_fea163038102b4f7.parquet
+2026-10-14 02:07:36      18026 features/offline-store/573693339848/sagemaker/us-east-1/offline-store/northstar-dev-customer-features-1791964491/data/year=2026/month=10/day=14/hour=08/20261014T080235Z_fee23ed8a55cbcaf.parquet
+
+== Records in the offline store Parquet files (read with pandas) ==
+parquet files: 54
+records: 9999
+distinct customer_id: 9999
+churn_label rate: 22.0%
+loyalty tiers: Bronze, Gold, Platinum, Silver
+feature columns present: avg_basket_size_6m, avg_order_value, category_diversity_score, churn_label, churn_risk_score, customer_id, customer_tenure_days, days_since_last_purchase, event_time, loyalty_tier, online_to_store_ratio, purchase_frequency_180d, purchase_frequency_30d, purchase_frequency_90d, total_lifetime_value, total_spend_90d
