@@ -2,12 +2,13 @@
 # var.project + var.environment; nothing in modules/ hardcodes one.
 
 module "vpc" {
-  source             = "../../modules/vpc"
-  project            = var.project
-  environment        = var.environment
-  vpc_cidr           = var.vpc_cidr
-  public_subnet_cidr = var.public_subnet_cidr
-  availability_zone  = var.availability_zone
+  source              = "../../modules/vpc"
+  project             = var.project
+  environment         = var.environment
+  vpc_cidr            = var.vpc_cidr
+  public_subnet_cidr  = var.public_subnet_cidr
+  private_subnet_cidr = var.private_subnet_cidr
+  availability_zone   = var.availability_zone
 }
 
 module "storage" {
@@ -21,6 +22,7 @@ module "iam" {
   source      = "../../modules/iam"
   project     = var.project
   environment = var.environment
+  bucket_arn  = module.storage.bucket_arn
 }
 
 module "sagemaker" {
@@ -28,7 +30,7 @@ module "sagemaker" {
   project            = var.project
   environment        = var.environment
   vpc_id             = module.vpc.vpc_id
-  subnet_ids         = [module.vpc.public_subnet_id]
+  subnet_ids         = [module.vpc.private_subnet_id]
   security_group_ids = [module.vpc.security_group_id]
   execution_role_arn = module.iam.ml_engineer_role_arn
   instance_type      = var.sagemaker_instance_type
