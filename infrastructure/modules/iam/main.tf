@@ -90,3 +90,85 @@ resource "aws_iam_role_policy_attachment" "this" {
   role       = aws_iam_role.ml_engineer.name
   policy_arn = aws_iam_policy.this.arn
 }
+
+# DataEngineer - assumed by Glue and EMR. Same six statements as the Lab 1 console policy.
+resource "aws_iam_role" "data_engineer" {
+  name = "${var.project}-${var.environment}-DataEngineer"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = ["sagemaker.amazonaws.com", "glue.amazonaws.com", "lambda.amazonaws.com"] }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+# DataEngineer policy is similiar as MLEngineer
+resource "aws_iam_policy" "data_engineer_policy" {
+  name = "${var.project}-${var.environment}-DataEngineerPolicy"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "GlueAccess",
+        "Effect" : "Allow",
+        "Action" : "glue:*",
+        "Resource" : "*"
+      },
+      {
+        "Sid" : "EniLifecycle",
+        "Effect" : "Allow",
+        "Action" : ["ec2:CreateNetworkInterface", "ec2:DeleteNetworkInterface", "ec2:DescribeNetworkInterfaces", "ec2:DescribeSubnets", "ec2:DescribeSecurityGroups", "ec2:DescribeVpcs", "ec2:DescribeVpcAttribute", "ec2:DescribeVpcEndpoints", "ec2:DescribeRouteTables"],
+        "Resource" : "*"
+      },
+      {
+        "Sid" : "EniTags",
+        "Effect" : "Allow",
+        "Action" : ["ec2:CreateTags", "ec2:DeleteTags"],
+        "Resource" : "arn:aws:ec2:*:*:network-interface/*"
+      },
+      {
+        "Sid" : "PipelineData",
+        "Effect" : "Allow",
+        "Action" : ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+        "Resource" : ["${var.bucket_arn}/raw/*", "${var.bucket_arn}/processed/*", "${var.bucket_arn}/features/*"]
+      },
+      {
+        "Sid" : "BucketLevel",
+        "Effect" : "Allow",
+        "Action" : ["s3:ListBucket", "s3:GetBucketLocation", "s3:GetBucketAcl"]
+        "Resource" : var.bucket_arn
+      },
+      {
+        "Sid" : "OfflineStoreAcl",
+        "Effect" : "Allow",
+        "Action" : "s3:PutObjectAcl",
+        "Resource" : "${var.bucket_arn}/features/*"
+      },
+      {
+        "Sid" : "GlueScripts",
+        "Effect" : "Allow",
+        "Action" : "s3:GetObject",
+        "Resource" : "${var.bucket_arn}/artifacts/glue/*"
+      },
+      {
+        "Sid" : "FeatureStore",
+        "Effect" : "Allow",
+        "Action" : ["sagemaker:CreateFeatureGroup", "sagemaker:DescribeFeatureGroup", "sagemaker:PutRecord"],
+        "Resource" : "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:feature-group/*"
+      },
+      {
+        "Sid" : "Logs",
+        "Effect" : "Allow",
+        "Action" : ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        "Resource" : "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws-glue/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "data_engineer" {
+  role       = aws_iam_role.data_engineer.name
+  policy_arn = aws_iam_policy.data_engineer_policy.arn
+}
