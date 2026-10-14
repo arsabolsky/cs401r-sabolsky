@@ -172,3 +172,55 @@ resource "aws_iam_role_policy_attachment" "data_engineer" {
   role       = aws_iam_role.data_engineer.name
   policy_arn = aws_iam_policy.data_engineer_policy.arn
 }
+
+# ModelMonitor - observes drift runs and writes CloudWatch metrics. Read-only
+# on artifacts/; no S3 writes, no endpoint invocation, cannot start jobs.
+resource "aws_iam_role" "model_monitor" {
+  name = "${var.project}-${var.environment}-ModelMonitor"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "sagemaker.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_policy" "model_monitor_policy" {
+  name = "${var.project}-${var.environment}-ModelMonitorPolicy"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "CloudWatchMetrics",
+        "Effect" : "Allow",
+        "Action" : ["cloudwatch:PutMetricData", "cloudwatch:GetMetricStatistics", "cloudwatch:PutMetricAlarm", "cloudwatch:DescribeAlarms"],
+        "Resource" : "*"
+      },
+      {
+        "Sid" : "ProcessingJobsRead",
+        "Effect" : "Allow",
+        "Action" : ["sagemaker:ListProcessingJobs", "sagemaker:DescribeProcessingJob"],
+        "Resource" : "*"
+      },
+      {
+        "Sid" : "ArtifactsRead",
+        "Effect" : "Allow",
+        "Action" : "s3:GetObject",
+        "Resource" : "${var.bucket_arn}/artifacts/*"
+      },
+      {
+        "Sid" : "Logs",
+        "Effect" : "Allow",
+        "Action" : ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        "Resource" : "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/sagemaker/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "model_monitor" {
+  role       = aws_iam_role.model_monitor.name
+  policy_arn = aws_iam_policy.model_monitor_policy.arn
+}
