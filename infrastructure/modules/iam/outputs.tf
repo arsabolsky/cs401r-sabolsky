@@ -4,7 +4,7 @@ output "ml_engineer_role_arn" {
 }
 
 output "data_engineer_role_arn" {
-  description = "ARN of the DataEngineer role — later labs pass this to Glue and EMR"
+  description = "ARN of the DataEngineer role — passed to the Glue jobs, crawler, and Feature Store"
   value       = aws_iam_role.data_engineer.arn
 }
 

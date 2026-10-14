@@ -91,7 +91,8 @@ resource "aws_iam_role_policy_attachment" "this" {
   policy_arn = aws_iam_policy.this.arn
 }
 
-# DataEngineer - assumed by Glue and EMR. Same six statements as the Lab 1 console policy.
+# DataEngineer - runs the Glue pipeline (trusted by Glue, Lambda, SageMaker).
+# Writes raw/, processed/, features/ and Feature Store; read-only on artifacts/glue/.
 resource "aws_iam_role" "data_engineer" {
   name = "${var.project}-${var.environment}-DataEngineer"
   assume_role_policy = jsonencode({
@@ -104,7 +105,6 @@ resource "aws_iam_role" "data_engineer" {
   })
 }
 
-# DataEngineer policy is similiar as MLEngineer
 resource "aws_iam_policy" "data_engineer_policy" {
   name = "${var.project}-${var.environment}-DataEngineerPolicy"
   policy = jsonencode({
