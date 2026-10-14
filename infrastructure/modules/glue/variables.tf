@@ -34,3 +34,8 @@ variable "security_group_id" {
   description = "ID of the security group to be used for Glue jobs"
   type        = string
 }
+
+variable "feature_group_name" {
+  description = "Feature Group the feature-engineer job writes records to"
+  type        = string
+}

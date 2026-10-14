@@ -45,6 +45,7 @@ module "glue" {
   subnet_id              = module.vpc.private_subnet_id
   availability_zone      = module.vpc.private_subnet_availability_zone
   security_group_id      = module.vpc.security_group_id
+  feature_group_name     = module.feature_store.feature_group_name
 }
 
 # depends_on: CreateFeatureGroup validates the role immediately, so the DataEngineer

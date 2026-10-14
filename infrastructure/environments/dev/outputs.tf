@@ -40,3 +40,23 @@ output "model_monitor_role_arn" {
   description = "ARN of the ModelMonitor role"
   value       = module.iam.model_monitor_role_arn
 }
+
+output "feature_group_name" {
+  description = "Name of the customer Feature Group"
+  value       = module.feature_store.feature_group_name
+}
+
+output "glue_crawler_name" {
+  description = "Name of the raw/ Glue crawler"
+  value       = module.glue.crawler_name
+}
+
+output "glue_transform_job_name" {
+  description = "Name of the transform Glue job"
+  value       = module.glue.transform_job_name
+}
+
+output "glue_feature_job_name" {
+  description = "Name of the feature-engineer Glue job"
+  value       = module.glue.feature_job_name
+}
