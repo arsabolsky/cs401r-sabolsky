@@ -33,8 +33,9 @@ data "aws_caller_identity" "current" {}
 # SEPARATE resource in modern AWS provider versions — do not look for those
 # as arguments on aws_s3_bucket itself.
 resource "aws_s3_bucket" "data" {
-  bucket = "${var.project}-${var.environment}-data-${data.aws_caller_identity.current.account_id}"
-  tags   = { Name = "${var.project}-${var.environment}-data" }
+  bucket        = "${var.project}-${var.environment}-data-${data.aws_caller_identity.current.account_id}"
+  tags          = { Name = "${var.project}-${var.environment}-data" }
+  force_destroy = var.force_destroy # allows terraform destroy to succeed even if the bucket isn't empty
 }
 
 # STEP 3 — aws_s3_bucket_public_access_block
@@ -96,4 +97,67 @@ resource "aws_s3_object" "prefixes" {
   key      = each.value
 }
 
-# TODO: implement the resources above.
+# Lab 2 — lifecycle rules (the five from the Architecture Reference).
+# Skipped when enable_lifecycle_rules = false (LocalStack). depends_on
+# versioning because the noncurrent-version rules only apply to a versioned
+# bucket. datacapture/ has no writer until Lab 5; the rule exists first.
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  count      = var.enable_lifecycle_rules ? 1 : 0
+  bucket     = aws_s3_bucket.data.id
+  depends_on = [aws_s3_bucket_versioning.this]
+
+  rule {
+    id     = "expire-raw-data"
+    status = "Enabled"
+    filter {
+      prefix = "raw/"
+    }
+    expiration {
+      days = 90
+    }
+  }
+
+  rule {
+    id     = "expire-raw-versions"
+    status = "Enabled"
+    filter {
+      prefix = "raw/"
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+
+  rule {
+    id     = "expire-processed-versions"
+    status = "Enabled"
+    filter {
+      prefix = "processed/"
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+
+  rule {
+    id     = "expire-feature-versions"
+    status = "Enabled"
+    filter {
+      prefix = "features/"
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 60
+    }
+  }
+
+  rule {
+    id     = "expire-datacapture"
+    status = "Enabled"
+    filter {
+      prefix = "datacapture/"
+    }
+    expiration {
+      days = 7
+    }
+  }
+}

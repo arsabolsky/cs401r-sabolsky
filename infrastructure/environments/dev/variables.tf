@@ -39,3 +39,4 @@ variable "sagemaker_instance_type" {
   type        = string
   default     = "ml.t3.medium"
 }
+
