@@ -3,6 +3,71 @@
 Course repository for the NorthStar platform. Each lab extends the same Terraform
 codebase under `infrastructure/`; graded evidence lives in `docs/`.
 
+## Lab 1 — Platform Foundation
+
+Lab 1 stands up the base of the platform: a VPC, the data bucket, the first IAM role,
+and a SageMaker Studio domain. It was built twice, first by hand in the console (Part A)
+and then as Terraform (Part B), so the two can be compared.
+
+### What Lab 1 builds
+
+- **Network.** VPC `northstar-dev-vpc` (10.0.0.0/16) with one public subnet
+  `northstar-dev-public-1` (10.0.100.0/24, us-east-1a), an Internet Gateway, a public
+  route table, and the `northstar-dev-sagemaker-sg` security group.
+- **Storage.** Bucket `northstar-dev-data-<account-id>` with versioning, SSE-S3
+  encryption, all public access blocked, and four prefixes: `raw/`, `processed/`,
+  `features/`, `artifacts/`.
+- **Identity.** Role `northstar-dev-MLEngineer`, trusted by SageMaker. It can read and
+  write `features/` and `artifacts/`, run SageMaker training and Studio, and pull ECR
+  images; it is denied writes to `raw/` by omission.
+- **ML environment.** SageMaker domain `northstar-dev-domain` (IAM auth, notebook output
+  sharing disabled) with user profile `MLEngineer`.
+
+### Part A — manual (console)
+
+Each resource was created in the AWS console, captured in a screenshot under
+`docs/lab1a-*.png`, then torn down before Part B.
+
+### Part B — Terraform
+
+| Module | Resources |
+|---|---|
+| `vpc` | VPC, public subnet, Internet Gateway, route table + association, security group |
+| `storage` | Data bucket, versioning, encryption, public-access block, the four prefixes |
+| `iam` | MLEngineer role, its policy, and the attachment |
+| `sagemaker` | Studio domain (EFS deleted with the domain) and the MLEngineer user profile |
+
+- **Remote state.** `scripts/bootstrap-state.sh` creates the state bucket
+  `northstar-tfstate-<account-id>` and the `northstar-tfstate-lock` DynamoDB table once;
+  `environments/dev/backend.tf` points Terraform at them. Safe to re-run.
+- **Parameterized.** Every name comes from `var.project` and `var.environment`; nothing in
+  `modules/` hardcodes one.
+- **LocalStack.** `make local-validate` applies vpc, storage and iam to a local emulator
+  before anything touches AWS.
+
+```bash
+bash scripts/bootstrap-state.sh            # once
+cd infrastructure/environments/dev
+terraform init && terraform apply
+cd ../../.. && bash scripts/verify-lab1.sh # while the stack is up
+```
+
+### Lab 1 evidence
+
+| File | Contents |
+|---|---|
+| `docs/lab1-architecture-diagram.png` / `.drawio` | Architecture diagram |
+| `docs/lab1a-*.png` | Part A console screenshots (VPC, subnet, IGW, route table, IAM role, S3, domain) |
+| `docs/lab1-studio-shutdown.png` | Studio with no running instances |
+| `docs/lab1b-apply-output.txt` | Part B `terraform apply` |
+| `docs/lab1b-*.png` | Part B screenshots (domain, S3, subnet, IAM role) |
+| `docs/lab1b-localstack-output.txt` | LocalStack validation |
+| `docs/lab1-verify-output.txt` | `verify-lab1.sh` output |
+| `docs/lab1-adr.md` | ADR-001: platform foundation decisions |
+| `docs/lab1-cost-estimate.md` | Monthly cost estimate with assumptions |
+
+Lab 2 later moves Studio into a private subnet and tightens the security group; see below.
+
 ## Lab 2 — Data & Feature Engineering
 
 Lab 2 hardens the Lab 1 platform and adds a data pipeline that turns raw transaction
