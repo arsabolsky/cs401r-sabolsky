@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Pre-Lab 4 — SageMaker Training Quota Setup</title>
+<style>
+ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+      line-height:1.55;max-width:52rem;margin:2rem auto;padding:0 1.25rem;color:#1a1a1a}
+ code{background:#f4f4f4;padding:.12em .35em;border-radius:3px;font-size:.92em}
+ pre{background:#f4f4f4;padding:1rem;border-radius:5px;overflow-x:auto}
+ pre code{background:none;padding:0}
+ table{border-collapse:collapse;width:100%;margin:1rem 0}
+ th,td{border:1px solid #ccc;padding:.5rem .6rem;text-align:left;vertical-align:top}
+ th{background:#f0f0f0}
+ blockquote{border-left:4px solid #c8102e;margin:1rem 0;padding:.4rem 1rem;background:#fafafa}
+ h1,h2,h3{line-height:1.25} hr{border:none;border-top:1px solid #ddd;margin:2rem 0}
+</style></head><body>
+<h1 id="pre-lab-4-sagemaker-training-quota-setup-retired">Pre-Lab 4 — SageMaker Training Quota Setup (Retired)</h1>
+<p><strong>Status:</strong> Retired Wed Sep 30. <strong>No action required, and nothing to submit.</strong></p>
+<p>This pre-lab asked you to request an on-demand SageMaker training quota increase before Lab 4. You no longer need one. Lab 4's pipeline now trains on <strong>managed spot</strong> capacity, which fits within the default quota every new AWS account gets.</p>
+<h2 id="why-it-changed">Why it changed</h2>
+<table>
+<thead>
+<tr>
+<th>Quota</th>
+<th>AWS default on a new account</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ml.m5.large for training job usage</code> (on-demand, <code>L-611FA074</code>)</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td><code>ml.m5.large for spot training job usage</code> (spot, <code>L-29688C85</code>)</td>
+<td><strong>4</strong></td>
+</tr>
+</tbody>
+</table>
+<p>On-demand training quota is zero for every instance type, which is why this pre-lab existed. Spot training quota is not. Lab 4's training estimator now sets <code>use_spot_instances=True</code> and <code>max_wait=3600</code>, so the job runs on a brand-new account without a quota request.</p>
+<p>We verified this on AWS on Sep 30. The full Lab 4 pipeline ran on spot <code>ml.m5.large</code>: it trained, registered the model, took 140 seconds, and was billed for 54.</p>
+<h2 id="if-you-already-did-it">If you already did it</h2>
+<p>Nothing is wasted, and there's nothing to undo.</p>
+<ul>
+<li><strong>A pending or approved on-demand request</strong> does no harm. A quota costs nothing unless you run jobs against it. You can leave it as it is.</li>
+<li><strong>A file you already submitted</strong> stays on record. It isn't graded, and it won't count against you.</li>
+</ul>
+<h2 id="what-still-matters-in-lab-4">What still matters in Lab 4</h2>
+<p>Two things carry over from this pre-lab:</p>
+<ol>
+<li><strong>Keep <code>use_spot_instances=True</code> in the estimator.</strong> Remove it and the job falls back to on-demand, and you're back to a quota of zero.</li>
+<li><strong>Check the right quota.</strong> <code>get-service-quota</code> reports what is applied to <em>your</em> account; <code>get-aws-default-service-quota</code> reports what a new account starts with. They can differ, and the difference is how instructors ship labs that work on their account and fail on yours.</li>
+</ol>
+<pre><code class="language-bash">aws service-quotas get-service-quota --service-code sagemaker \
+  --quota-code L-29688C85 --query 'Quota.Value' --output text
+</code></pre>
+<p>Any value of 1 or more is enough for Lab 4.</p>
+</body></html>
