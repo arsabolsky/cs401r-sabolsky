@@ -299,12 +299,16 @@ def load_features_from_feature_store(feature_group_name: str,
         ORDER BY customer_id
     """
 
-    # query.run(query_string=query_string,
-    #           output_location=f"s3://{artifacts_bucket}/artifacts/athena-results/")
-    # query.wait()
-    # df = query.as_dataframe()
-    # return df
-    raise NotImplementedError("TODO: Implement Feature Store query")
+    query.run(
+        query_string=query_string,
+        output_location=f"s3://{artifacts_bucket}/artifacts/athena-results/",
+    )
+    query.wait()
+    print(
+        "Athena QueryExecutionId: "
+        f"{query.get_query_execution()['QueryExecution']['QueryExecutionId']}"
+    )
+    return query.as_dataframe()
 
 
 def load_features_local(path: str) -> pd.DataFrame:

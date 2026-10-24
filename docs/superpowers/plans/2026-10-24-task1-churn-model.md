@@ -42,11 +42,11 @@
 
 **Interfaces:** `load_features_from_feature_store(...) -> pd.DataFrame`; `preprocess_features(df) -> (X, y)`.
 
-- [ ] Add tests for the query lifecycle, query ID logging, result DataFrame, epoch bounds, and required SQL clauses.
-- [ ] Run the focused unit tests and confirm they fail for the unimplemented loader.
-- [ ] Execute the prepared query, wait, print the prescribed Athena ID, and return `query.as_dataframe()`.
-- [ ] Add preprocessing tests for missing values and label exclusion; implement the documented feature-only matrix.
-- [ ] Run the focused tests and commit.
+- [x] Add tests for the query lifecycle, query ID logging, result DataFrame, epoch bounds, and required SQL clauses.
+- [x] Run the focused unit tests and confirm they fail for the unimplemented loader.
+- [x] Execute the prepared query, wait, print the prescribed Athena ID, and return `query.as_dataframe()`.
+- [x] Add preprocessing tests for missing values and label exclusion; the existing feature-only matrix already satisfies them.
+- [x] Run the focused tests and commit.
 
 ### Task 2: Slice Evaluation and Evidence Plots
 
