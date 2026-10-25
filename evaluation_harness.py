@@ -739,7 +739,7 @@ def main():
             return_profile_context=not args.without_profile_context,
             generation_model_id=args.generation_model_id,
         )
-        evaluator = RAGEvaluator(rag_invoke_fn=rag_system.generate_offer,
+        evaluator = RAGEvaluator(rag_invoke_fn=rag_system.generate_offer_with_metadata,
                                  bedrock_model_id=args.bedrock_model_id,
                                  region=args.region,
                                  retrieval_strategy=args.retrieval_strategy,

@@ -112,6 +112,23 @@ class FakeBedrockRuntime:
 
 
 class RAGOfferContractTests(unittest.TestCase):
+    def test_public_generate_offer_returns_exactly_answer_and_contexts(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            Path(temp_dir, "loyalty-program-terms.md").write_text(
+                "**Document ID:** POL-LOY-011\n\n## Points\n\nGold earns 1.5x points."
+            )
+            system = RAGOfferSystem(
+                corpus_dir=temp_dir,
+                bedrock_client=FakeBedrockRuntime(),
+                top_k=10,
+            )
+            result = system.generate_offer(
+                {"loyalty_tier": "Gold", "top_categories": ["Outdoor"]},
+                "Create a retention offer.",
+            )
+
+        self.assertEqual(set(result), {"answer", "contexts"})
+
     def test_unsupported_promotion_and_catalog_claims_use_policy_bound_fallback(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             Path(temp_dir, "loyalty-program-terms.md").write_text(
@@ -127,7 +144,7 @@ class RAGOfferContractTests(unittest.TestCase):
                 top_k=10,
             )
 
-            result = system.generate_offer(
+            result = system.generate_offer_with_metadata(
                 {"loyalty_tier": "Gold", "top_categories": ["Outdoor"]},
                 "Create a retention offer.",
             )
@@ -170,7 +187,7 @@ class RAGOfferContractTests(unittest.TestCase):
                 top_k=10,
             )
 
-            result = system.generate_offer(
+            result = system.generate_offer_with_metadata(
                 {"loyalty_tier": "Gold", "top_categories": ["Outdoor"]},
                 "Create a retention offer.",
             )
@@ -195,7 +212,7 @@ class RAGOfferContractTests(unittest.TestCase):
                 return_profile_context=False,
             )
 
-            result = system.generate_offer(
+            result = system.generate_offer_with_metadata(
                 {"loyalty_tier": "Gold", "top_categories": ["Outdoor"]},
                 "Create a retention offer.",
             )

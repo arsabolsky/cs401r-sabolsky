@@ -455,6 +455,13 @@ class RAGOfferSystem:
         ) + "\n\n## Non-negotiable safety constraints\n" + safety
 
     def generate_offer(self, customer_context: dict, question: str) -> dict:
+        """Return the two-field contract consumed by the assignment harness."""
+        detailed = self.generate_offer_with_metadata(customer_context, question)
+        return {"answer": detailed["answer"], "contexts": detailed["contexts"]}
+
+    def generate_offer_with_metadata(self, customer_context: dict,
+                                     question: str) -> dict:
+        """Return the offer plus chunk IDs and guardrail details for auditing."""
         request, chunks = self.retrieve(customer_context, question)
         profile_context = serialize_customer_profile(customer_context)
         policy_context = "\n\n".join(
