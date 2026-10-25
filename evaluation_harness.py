@@ -13,8 +13,8 @@ Track C (Customer Service Agent):
 Usage:
     # Track B — RAG evaluation
     python evaluation_harness.py --track B \
-        --rag-endpoint https://... \
-        --test-cases tests/offer_test_cases.json
+        --region us-east-1 \
+        --output-dir docs/lab3-evidence
 
     # Track C — Agent evaluation
     python evaluation_harness.py --track C \
@@ -699,11 +699,40 @@ def main():
         print("Track B: Offer Generation RAG Evaluation")
         print("=" * 50)
 
-        # TODO: Wire up your actual RAG invocation function here.
-        # The function receives (customer_context: dict, question: str)
-        # and must return {"answer": str, "contexts": list[str]}
+        # TODO (Track B): put the implementation in the repo-root file
+        # `rag_offer_system.py`, then import and instantiate it here. Keep this
+        # adapter small; RAGEvaluator calls it once per OFFER_TEST_CASE.
+        #
+        # Implementation checklist for rag_offer_system.py:
+        #   Before loading the prompt, fix its three planted facts in
+        #   `prompt_templates/offer_generation_prompts.md`: Gold's upper spend
+        #   bound is $4,999.99, Platinum starts at $5,000, and free expedited
+        #   shipping is not offered to any tier. Verify against POL-LOY-011 and
+        #   POL-SHP-007 in `northstar-policy-docs/`.
+        #   1. Load `northstar-policy-docs/*.md`, preserve doc/section/chunk IDs,
+        #      and split with a documented size/overlap.
+        #   2. Embed chunks and queries with Titan V2, then retrieve from local
+        #      FAISS. Build/load the index once rather than per customer.
+        #   3. Apply the corrected `prompt_templates/offer_generation_prompts.md`
+        #      prompt and call Haiku through the `us.` Bedrock inference profile.
+        #   4. Pass the customer profile into the prompt AND include a concise
+        #      profile string in returned contexts so RAGAS can ground profile
+        #      claims. Include retrieved policy text in contexts as well.
+        #   5. Return exactly {"answer": str, "contexts": list[str]}; retain
+        #      retrieved chunk IDs separately for track-b-examples.md.
+        #   6. Keep the answer to 2-3 sentences, with a policy-backed incentive,
+        #      a category from top_categories, and a clear call to action.
+        #
+        # Suggested wiring after the system exists:
+        #   from rag_offer_system import RAGOfferSystem
+        #   rag_system = RAGOfferSystem(region=args.region)
+        #   rag_invoke_fn = rag_system.generate_offer
+        #
+        # Keep the adapter contract (customer_context, question) ->
+        # {"answer": str, "contexts": list[str]} unchanged so the four provided
+        # cases and RAGEvaluator continue to work.
         def placeholder_rag_fn(context, question):
-            """Replace this with your actual RAG system invocation."""
+            """Replace this adapter with the Track B system invocation."""
             raise NotImplementedError(
                 "TODO: Replace this placeholder with your RAG system invocation.\n"
                 "The function should call your Bedrock + vector store pipeline\n"
@@ -715,6 +744,10 @@ def main():
                                  region=args.region)
         results = evaluator.run(OFFER_TEST_CASES)
         output_path = os.path.join(args.output_dir, f"rag_eval_{timestamp}.csv")
+        # This timestamped file is a raw single run. Evaluate all four cases at
+        # least twice, then consolidate the per-case rows into the rubric's
+        # fixed `docs/lab3-evidence/rag_eval.csv`, retaining a run number and the
+        # judge model so scores can be compared and summarized honestly.
         results.to_csv(output_path, index=False)
         print(f"Results saved to {output_path}")
 
