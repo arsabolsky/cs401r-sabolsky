@@ -384,7 +384,7 @@ class RAGEvaluator:
     }
 
     def __init__(self, rag_invoke_fn, bedrock_model_id=None, region="us-east-1",
-                 retrieval_strategy="A", run_id=None):
+                 retrieval_strategy="A", run_id=None, generation_model_id=None):
         """
         Args:
             rag_invoke_fn:     callable(customer_context, question) ->
@@ -399,6 +399,7 @@ class RAGEvaluator:
         self.region = region
         self.retrieval_strategy = retrieval_strategy.upper()
         self.run_id = run_id or datetime.utcnow().strftime("%Y%m%dT%H%M%S")
+        self.generation_model_id = generation_model_id or DEFAULT_BEDROCK_MODEL_ID
 
     def run(self, test_cases: list[RAGTestCase]) -> pd.DataFrame:
         if not RAGAS_AVAILABLE:
@@ -441,6 +442,7 @@ class RAGEvaluator:
         results_df["run_id"] = self.run_id
         results_df["retrieval_strategy"] = self.retrieval_strategy
         results_df["judge_model"] = self.bedrock_model_id
+        results_df["generation_model"] = self.generation_model_id
         results_df["region"] = self.region
         self._print_results(results_df)
         return results_df
@@ -700,6 +702,9 @@ def main():
     # Verified against Bedrock 2026-08-07.
     parser.add_argument("--bedrock-model-id",
                         default=DEFAULT_BEDROCK_MODEL_ID)
+    parser.add_argument("--generation-model-id",
+                        default=DEFAULT_BEDROCK_MODEL_ID,
+                        help="Bedrock model used to generate offers")
     parser.add_argument("--vector-store-endpoint", default=None)
     parser.add_argument("--retrieval-strategy", choices=["A", "B", "C"], default="A",
                         help="Track B policy retrieval strategy to evaluate")
@@ -731,12 +736,14 @@ def main():
             region=args.region,
             retrieval_strategy=args.retrieval_strategy,
             return_profile_context=not args.without_profile_context,
+            generation_model_id=args.generation_model_id,
         )
         evaluator = RAGEvaluator(rag_invoke_fn=rag_system.generate_offer,
                                  bedrock_model_id=args.bedrock_model_id,
                                  region=args.region,
                                  retrieval_strategy=args.retrieval_strategy,
-                                 run_id=args.run_id)
+                                 run_id=args.run_id,
+                                 generation_model_id=args.generation_model_id)
         results = evaluator.run(OFFER_TEST_CASES)
         output_path = os.path.join(args.output_dir, f"rag_eval_{timestamp}.csv")
         results.to_csv(output_path, index=False)
