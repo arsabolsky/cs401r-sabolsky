@@ -40,6 +40,7 @@ from datetime import datetime, timezone
 import boto3
 import numpy as np
 import pandas as pd
+from botocore.exceptions import ClientError
 
 # SageMaker imports — available in SageMaker training containers.
 #
@@ -807,7 +808,11 @@ def save_and_register_model(model: xgb.Booster,
     group_name = "northstar-churn-models"
     try:
         sm_client.describe_model_package_group(ModelPackageGroupName=group_name)
-    except sm_client.exceptions.ResourceNotFound:
+    except ClientError as exc:
+        error = exc.response.get("Error", {})
+        if (error.get("Code") != "ValidationException"
+                or "does not exist" not in error.get("Message", "")):
+            raise
         sm_client.create_model_package_group(
             ModelPackageGroupName=group_name,
             ModelPackageGroupDescription="NorthStar churn prediction models",

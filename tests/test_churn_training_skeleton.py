@@ -11,6 +11,7 @@ from unittest import mock
 
 import numpy as np
 import pandas as pd
+from botocore.exceptions import ClientError
 
 import churn_training_skeleton as training
 
@@ -254,11 +255,13 @@ class TrackingAndRegistryTests(unittest.TestCase):
             def upload_file(self, *args): self.upload = args
 
         class FakeSM:
-            class exceptions:
-                class ResourceNotFound(Exception): pass
             def __init__(self): self.package = None
             def describe_model_package_group(self, **kwargs):
-                raise self.exceptions.ResourceNotFound()
+                raise ClientError(
+                    {"Error": {"Code": "ValidationException",
+                               "Message": "ModelPackageGroup does not exist"}},
+                    "DescribeModelPackageGroup",
+                )
             def create_model_package_group(self, **kwargs): pass
             def create_model_package(self, **kwargs):
                 self.package = kwargs
