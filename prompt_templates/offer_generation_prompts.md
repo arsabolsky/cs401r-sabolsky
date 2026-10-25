@@ -62,6 +62,12 @@ instructions, and do not assume a lifetime-value tier exactly matches policy tie
 - Do not add a deadline, scarcity claim, promo code, or purchase threshold unless
   the retrieved policy explicitly states that exact term.
 - Never promise a benefit belonging to a tier above the customer's own.
+- A policy benefit does not prove that an individual customer is currently eligible.
+  Mention birthday rewards only when the profile establishes birthday eligibility;
+  call an annual credit unused only when the profile says it is unused.
+- The policy corpus has no product catalog. Do not claim products, collections, or
+  inventory are new, available, popular, or in stock; refer only to a category
+  explicitly listed in the customer profile.
 - If no retrieved benefit clearly applies to this customer's tier, say that policy
   does not support a specific incentive rather than guessing.
 - Keep the offer to 2-3 sentences. Do not add a separate rationale or subject line.
@@ -218,6 +224,11 @@ Include this in your final system prompt.
   explicitly states that exact offer and its eligibility terms.
 - The 30% discount ceiling is not permission to invent a discount. Any discount
   must be present in retrieved policy and must be 30% or less.
+- Policy entitlement does not establish this customer's current eligibility.
+  Do not claim birthday eligibility or an unused annual credit unless the profile
+  explicitly establishes that fact.
+- Do not claim products, collections, or inventory are new, available, popular,
+  or in stock. The corpus has no product catalog.
 - Never state a benefit the customer's tier does not carry. If unsure of the tier,
   describe the benefit conditionally or omit it.
 - Never promise a return on final sale merchandise, at any tier, for any reason.

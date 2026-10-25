@@ -196,6 +196,9 @@ class PromptPolicyFactTests(unittest.TestCase):
         self.assertIn("Never create a discount", system_block)
         self.assertIn("expiration date", system_block)
         self.assertIn("minimum purchase", system_block)
+        self.assertIn("birthday eligibility", system_block)
+        self.assertIn("annual credit unused", system_block)
+        self.assertIn("Do not claim products, collections, or\n  inventory", system_block)
         self.assertIn("retrieved policy\n  explicitly states", guardrail_block)
 
 
