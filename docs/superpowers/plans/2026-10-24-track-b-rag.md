@@ -87,5 +87,5 @@
 ### Task 5: Export and verify Track B evidence
 
 - [x] Run `bash scripts/collect-lab3-evidence.sh --track B` with `AWS_PROFILE=northstar`, `AWS_REGION=us-east-1`, and verify every output; resolve all Track B FAILs.
-- [ ] Run the complete unit suite and `bash scripts/check-secrets.sh`; inspect `git status` and `git diff --check`.
-- [ ] Commit the clean evidence bundle and report any unrelated final-submission steps still pending.
+- [x] Run the complete unit suite and `bash scripts/check-secrets.sh`; inspect `git status` and `git diff --check`.
+- [x] Commit the clean evidence bundle and report any unrelated final-submission steps still pending.
