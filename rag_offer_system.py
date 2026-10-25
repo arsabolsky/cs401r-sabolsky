@@ -310,6 +310,84 @@ def _user_prompt(prompt_markdown: str, customer_context: dict, question: str) ->
     return rendered
 
 
+def _answer_needs_policy_fallback(answer: str, customer_context: dict) -> bool:
+    """Catch common unsupported promotion, catalog, and eligibility claims."""
+    text = answer.lower()
+    unsupported_patterns = (
+        r"\b(?:latest|new arrivals?|new collections?|our selection|in stock|inventory)\b",
+        r"\b(?:upcoming|next) sale\b",
+        r"\b\d+(?:\.\d+)?\s*%\s*(?:off|discount)",
+        r"\b(?:promo|discount) code\b",
+        r"\b(?:valid for|expires? in|within)\s+\d+\s+(?:days?|weeks?)\b",
+        r"\bexclusive (?:offer|sale|discount)\b",
+    )
+    if any(re.search(pattern, text) for pattern in unsupported_patterns):
+        return True
+
+    if "birthday" in text and not customer_context.get("birthday_eligible"):
+        return True
+    if "unused" in text and not customer_context.get("annual_gear_credit_unused"):
+        return True
+
+    tier = str(customer_context.get("loyalty_tier") or "").strip()
+    if tier and tier.lower() in text and not re.search(
+            r"\b(?:if|when)\b.{0,55}\b(?:confirmed|current policy|trailing 12-month)\b",
+            text):
+        return True
+    return False
+
+
+def _policy_bound_fallback(customer_context: dict,
+                           all_chunks: list[PolicyChunk]) -> tuple[str, Optional[PolicyChunk]]:
+    """Build a conditional offer from an exact tier benefit present in policy."""
+    tier = str(customer_context.get("loyalty_tier") or "").strip().title()
+    category_value = customer_context.get("top_categories") or []
+    if isinstance(category_value, str):
+        categories = [category_value] if category_value else []
+    else:
+        categories = list(category_value)
+    category = str(categories[0]) if categories else None
+
+    choices = {
+        "Bronze": (
+            "free standard shipping on orders of $75 or more",
+            ("free standard shipping", "$75"),
+        ),
+        "Silver": (
+            "12-hour early access to sales",
+            ("early access", "12 hour"),
+        ),
+        "Gold": (
+            "free standard shipping on any order",
+            ("free standard shipping", "always"),
+        ),
+        "Platinum": (
+            "48-hour early access to sales",
+            ("early access", "48 hour"),
+        ),
+    }
+    benefit, needles = choices.get(tier, (None, ()))
+    supporting_chunk = next((
+        chunk for chunk in all_chunks
+        if chunk.doc_id == "POL-LOY-011"
+        and all(needle in chunk.text.lower() for needle in needles)
+    ), None) if benefit else None
+
+    if not category or not supporting_chunk:
+        return (
+            "I cannot confirm a specific tier benefit from the policy passages "
+            "retrieved for this profile. Review the current loyalty terms before "
+            "making an offer.",
+            supporting_chunk,
+        )
+    return (
+        f"If your {tier} tier is confirmed under the current trailing-12-month "
+        f"spend rules, the policy lists {benefit}. Explore the {category} category "
+        "and visit NorthStar to consider your next purchase.",
+        supporting_chunk,
+    )
+
+
 class RAGOfferSystem:
     """Embed policy text once, retrieve with FAISS, and generate through Bedrock."""
 
@@ -389,7 +467,8 @@ class RAGOfferSystem:
             )
             contexts = [profile_context] if self.return_profile_context else []
             return {"answer": answer, "contexts": contexts, "chunk_ids": [],
-                    "retrieved_chunks": [], "retrieval_query": request.query}
+                    "retrieved_chunks": [], "retrieval_query": request.query,
+                    "guardrail_fallback": False}
 
         system_prompt = self._system_prompt(policy_context, profile_context)
         response = self.bedrock.converse(
@@ -404,6 +483,13 @@ class RAGOfferSystem:
             answer = response["output"]["message"]["content"][0]["text"].strip()
         except (KeyError, IndexError, TypeError) as exc:
             raise ValueError("Bedrock Converse returned no text response") from exc
+        guardrail_fallback = _answer_needs_policy_fallback(answer, customer_context)
+        if guardrail_fallback:
+            answer, supporting_chunk = _policy_bound_fallback(
+                customer_context, self.chunks)
+            if supporting_chunk and supporting_chunk.chunk_id not in {
+                    chunk.chunk_id for chunk in chunks}:
+                chunks.append(supporting_chunk)
         policy_contexts = [chunk.text for chunk in chunks]
         contexts = policy_contexts + ([profile_context] if self.return_profile_context else [])
         return {
@@ -412,4 +498,5 @@ class RAGOfferSystem:
             "chunk_ids": [chunk.chunk_id for chunk in chunks],
             "retrieved_chunks": [asdict(chunk) for chunk in chunks],
             "retrieval_query": request.query,
+            "guardrail_fallback": guardrail_fallback,
         }

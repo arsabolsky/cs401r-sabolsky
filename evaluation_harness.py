@@ -408,7 +408,7 @@ class RAGEvaluator:
         print(f"\n── Running RAG Evaluation ({len(test_cases)} test cases) ──")
 
         dataset_dict = {"question": [], "answer": [], "contexts": [], "ground_truth": []}
-        metadata = {"customer_id": [], "chunk_ids": []}
+        metadata = {"customer_id": [], "chunk_ids": [], "guardrail_fallback": []}
 
         for tc in test_cases:
             print(f"  Evaluating {tc.customer_id}...")
@@ -422,6 +422,7 @@ class RAGEvaluator:
             dataset_dict["ground_truth"].append(tc.ground_truth)
             metadata["customer_id"].append(tc.customer_id)
             metadata["chunk_ids"].append(json.dumps(result.get("chunk_ids", [])))
+            metadata["guardrail_fallback"].append(bool(result.get("guardrail_fallback", False)))
 
         dataset = Dataset.from_dict(dataset_dict)
         # llm= and embeddings= are REQUIRED. Omit them and RAGAS silently falls

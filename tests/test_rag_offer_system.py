@@ -94,9 +94,10 @@ class FakeBody:
 
 
 class FakeBedrockRuntime:
-    def __init__(self):
+    def __init__(self, answer_text="A grounded offer. Shop Outdoor today."):
         self.converse_request = None
         self.embedding_calls = 0
+        self.answer_text = answer_text
 
     def invoke_model(self, *, modelId, body, contentType, accept):
         self.embedding_calls += 1
@@ -107,10 +108,37 @@ class FakeBedrockRuntime:
 
     def converse(self, **kwargs):
         self.converse_request = kwargs
-        return {"output": {"message": {"content": [{"text": "A grounded offer. Shop Outdoor today."}]}}}
+        return {"output": {"message": {"content": [{"text": self.answer_text}]}}}
 
 
 class RAGOfferContractTests(unittest.TestCase):
+    def test_unsupported_promotion_and_catalog_claims_use_policy_bound_fallback(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            Path(temp_dir, "loyalty-program-terms.md").write_text(
+                "**Document ID:** POL-LOY-011\n\n## Gold Benefits\n\n"
+                "Gold members receive free standard shipping at any order amount (Always)."
+            )
+            bedrock = FakeBedrockRuntime(
+                "As a Gold member, get 20% off with code GOLD20 on our latest Outdoor arrivals."
+            )
+            system = RAGOfferSystem(
+                corpus_dir=temp_dir,
+                bedrock_client=bedrock,
+                top_k=10,
+            )
+
+            result = system.generate_offer(
+                {"loyalty_tier": "Gold", "top_categories": ["Outdoor"]},
+                "Create a retention offer.",
+            )
+
+        self.assertTrue(result["guardrail_fallback"])
+        self.assertNotIn("20%", result["answer"])
+        self.assertNotIn("latest", result["answer"].lower())
+        self.assertIn("if your gold tier is confirmed", result["answer"].lower())
+        self.assertIn("free standard shipping", result["answer"])
+        self.assertTrue(any("free standard shipping" in c for c in result["contexts"]))
+
     def test_retrieval_reuses_the_faiss_index_built_by_the_system(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             Path(temp_dir, "loyalty-program-terms.md").write_text(
