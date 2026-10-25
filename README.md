@@ -182,3 +182,78 @@ SageMaker NFS security groups and Feature Store leftovers behind.
 | `docs/lab2-data-contract.md` | Data contract for `processed/customers/` |
 | `docs/lab2-data-lineage.png` | Data lineage diagram |
 | `docs/lab2-destroy-output.txt` | Teardown evidence (on `main`, after the submit tag) |
+
+## Lab 3 — Model development and Track B
+
+Lab 3 trains the churn ranker from the Lab 2 Feature Store through Athena and demonstrates
+policy-grounded retention offers with local FAISS retrieval. Use the personal AWS CLI profile
+and `us-east-1` for every AWS operation; verify account `573693339848` before running the
+training or evidence scripts. Never use the `default` work profile.
+
+### Local Python setup
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install boto3 pandas xgboost matplotlib scikit-learn \
+  ragas datasets 'langchain-community<0.4' langchain-aws faiss-cpu jupyter nbformat
+```
+
+### Athena-backed Task 1 training
+
+Set the AWS environment for the personal account, check the returned account ID, then run
+from the repository root. The MLflow ARN is read from the evidence export; the listed
+hyperparameters match the recorded graded run.
+
+```bash
+export AWS_PROFILE=northstar AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1
+aws sts get-caller-identity --query Account --output text
+MLFLOW_ARN="$(cat docs/lab3-evidence/mlflow-app-arn.txt)"
+python churn_training_skeleton.py \
+  --feature-group-name "$(terraform -chdir=infrastructure/environments/dev output -raw feature_group_name)" \
+  --artifacts-bucket northstar-dev-data-573693339848 \
+  --mlflow-arn "$MLFLOW_ARN" --run-name final \
+  --max-depth 4 --eta 0.1 --num-round 200 \
+  --min-child-weight 5 --subsample 0.8 --colsample-bytree 0.8 \
+  --output-data-dir docs/lab3-evidence 2>&1 | tee docs/lab3-evidence/train-final.log
+```
+
+### Track B demo and evaluation
+
+The demo notebook builds a local index, prints retrieved chunks, generates one offer, and
+checks that its benefit and category have support. Run it with the same account verification
+in the first notebook cell:
+
+```bash
+jupyter notebook notebooks/lab3-demo.ipynb
+```
+
+Run the four-case RAGAS evaluation with explicit strategy and model IDs. This project account
+currently requires Anthropic use-case details before Haiku inference; the recorded runs use
+Nova models and preserve their IDs in the CSV.
+
+```bash
+export AWS_PROFILE=northstar AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1
+aws sts get-caller-identity --query Account --output text
+python evaluation_harness.py --track B --region us-east-1 \
+  --retrieval-strategy C --generation-model-id amazon.nova-pro-v1:0 \
+  --bedrock-model-id amazon.nova-pro-v1:0 --run-id final-rerun \
+  --output-dir docs/lab3-evidence
+```
+
+Each run writes a timestamped CSV and appends to `docs/lab3-evidence/rag_eval.csv`, replacing
+rows with the same run ID and customer ID. Raw per-run logs, the metric summary, example
+outputs, and failure analysis are under `docs/lab3-evidence/`.
+
+### Export and validate evidence
+
+Run the collector while the Lab 3 stack is still available, then resolve every reported FAIL.
+The final secret scan must be clean before tagging the submission.
+
+```bash
+export AWS_PROFILE=northstar AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1
+aws sts get-caller-identity --query Account --output text
+bash scripts/collect-lab3-evidence.sh --track B
+bash scripts/check-secrets.sh
+```

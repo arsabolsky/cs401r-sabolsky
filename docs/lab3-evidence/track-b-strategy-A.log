@@ -1,0 +1,38 @@
+/Users/arsabolsky/Library/Mobile Documents/com~apple~CloudDocs/6. Fall 2026/CS 401R Engineering The Ai Enterprise/cs401r-sabolsky/evaluation_harness.py:54: DeprecationWarning: Importing answer_relevancy from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import answer_relevancy
+  from ragas.metrics import (answer_relevancy, context_recall, faithfulness)
+/Users/arsabolsky/Library/Mobile Documents/com~apple~CloudDocs/6. Fall 2026/CS 401R Engineering The Ai Enterprise/cs401r-sabolsky/evaluation_harness.py:54: DeprecationWarning: Importing context_recall from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import context_recall
+  from ragas.metrics import (answer_relevancy, context_recall, faithfulness)
+/Users/arsabolsky/Library/Mobile Documents/com~apple~CloudDocs/6. Fall 2026/CS 401R Engineering The Ai Enterprise/cs401r-sabolsky/evaluation_harness.py:54: DeprecationWarning: Importing faithfulness from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import faithfulness
+  from ragas.metrics import (answer_relevancy, context_recall, faithfulness)
+/Users/arsabolsky/Library/Mobile Documents/com~apple~CloudDocs/6. Fall 2026/CS 401R Engineering The Ai Enterprise/cs401r-sabolsky/evaluation_harness.py:723: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S")
+/Users/arsabolsky/Library/Mobile Documents/com~apple~CloudDocs/6. Fall 2026/CS 401R Engineering The Ai Enterprise/cs401r-sabolsky/evaluation_harness.py:360: DeprecationWarning: LangchainLLMWrapper is deprecated and will be removed in a future version. Use llm_factory instead: from openai import OpenAI; from ragas.llms import llm_factory; llm = llm_factory('gpt-4o-mini', client=OpenAI(api_key='...'))
+  llm = LangchainLLMWrapper(ChatBedrock(
+/Users/arsabolsky/Library/Mobile Documents/com~apple~CloudDocs/6. Fall 2026/CS 401R Engineering The Ai Enterprise/cs401r-sabolsky/evaluation_harness.py:364: DeprecationWarning: LangchainEmbeddingsWrapper is deprecated and will be removed in a future version. Use the modern embedding providers instead: embedding_factory('openai', model='text-embedding-3-small', client=openai_client) or from ragas.embeddings import OpenAIEmbeddings, GoogleEmbeddings, HuggingFaceEmbeddings
+  embeddings = LangchainEmbeddingsWrapper(BedrockEmbeddings(
+Track B: Offer Generation RAG Evaluation
+==================================================
+
+── Running RAG Evaluation (4 test cases) ──
+  Evaluating CUST-10000317...
+  Evaluating CUST-10000904...
+  Evaluating CUST-10000122...
+  Evaluating CUST-10000588...
+Evaluating:   0%|          | 0/12 [00:00<?, ?it/s]Evaluating:   8%|▊         | 1/12 [00:04<00:45,  4.13s/it]Evaluating:  17%|█▋        | 2/12 [00:06<00:29,  2.96s/it]Evaluating:  58%|█████▊    | 7/12 [00:08<00:04,  1.01it/s]Exception raised in Job[10]: OutputParserException(Invalid json output: What are the benefits of being a Silver member for the upcoming sale on Home essentials?
+
+Is the answer noncommittal? 0
+For troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE )
+Evaluating:  83%|████████▎ | 10/12 [00:09<00:01,  1.59it/s]Evaluating:  92%|█████████▏| 11/12 [00:09<00:00,  1.71it/s]Exception raised in Job[4]: OutputParserException(Failed to parse StringIO from completion {"properties": {"text": "{\"question\": \"What benefits does a Bronze member receive when shopping with us?\",\"noncommittal\": 0}"}}. Got: 1 validation error for StringIO
+text
+  Field required [type=missing, input_value={'properties': {'text': '...?","noncommittal": 0}'}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+For troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE )
+Evaluating: 100%|██████████| 12/12 [00:09<00:00,  1.86it/s]Evaluating: 100%|██████████| 12/12 [00:09<00:00,  1.21it/s]
+
+── RAGAS Evaluation Results ──────────────────────────
+  faithfulness        : 0.583  (target: 0.80)  ✗ FAIL
+  answer_relevancy    : 0.438  (target: 0.75)  ✗ FAIL
+  context_recall      : 0.708  (target: 0.70)  ✓ PASS
+
+Results saved to docs/lab3-evidence/rag_eval_20261025T012034.csv
+Consolidated results saved to docs/lab3-evidence/rag_eval.csv
