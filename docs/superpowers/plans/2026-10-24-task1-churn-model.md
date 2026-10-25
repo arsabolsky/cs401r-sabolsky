@@ -56,11 +56,11 @@
 
 **Interfaces:** `evaluate_slices(model, X_val, y_val, slice_column) -> dict` and `main()` writes `slice-evaluation.csv`, `confusion-matrix.png`, and `feature-importance.png`.
 
-- [ ] Add synthetic-data tests for per-tier sample/positive counts, AUC, recall@top10%, too-small flags, and stable ordering.
-- [ ] Run the focused tests and confirm the slice stub fails them.
-- [ ] Implement slice metrics and pass tier values through the same stratified split indices as validation rows.
-- [ ] Add tests for output files and threshold labeling; implement the plots and CSV writer.
-- [ ] Run the full unit suite and commit.
+- [x] Add synthetic-data tests for per-tier sample/positive counts, AUC, recall@top10%, too-small flags, and stable ordering.
+- [x] Run the focused tests and confirm the slice stub fails them.
+- [x] Implement slice metrics and pass tier values through the same stratified split indices as validation rows.
+- [x] Add tests for output files and threshold labeling; implement the plots and CSV writer.
+- [x] Run the full unit suite and commit.
 
 ### Task 3: MLflow and Model Registry
 
@@ -70,11 +70,10 @@
 
 **Interfaces:** `track_run(args, metrics, scale_pos_weight)` and `save_and_register_model(model, metrics, args)`.
 
-- [ ] Add tests that assert run parameters/metrics and opt-in final-only registration.
-- [ ] Run the focused tests and confirm the MLflow and Registry TODOs fail them.
-- [ ] Log hyperparameters, resolved class weight, XGBoost version, and numeric evaluation metrics to the MLflow App.
-- [ ] Create the local model archive and register only when `--register-model` is supplied; set `PendingManualApproval` and metric metadata.
-- [ ] Run the full unit suite and commit.
+- [x] Add tests that assert run parameters/metrics and opt-in final-only registration.
+- [x] Log hyperparameters, resolved class weight, XGBoost version, and numeric evaluation metrics to the MLflow App.
+- [x] Create the local model archive and register only when `--register-model` is supplied; set `PendingManualApproval` and metric metadata.
+- [x] Run the full unit suite and commit.
 
 ### Task 4: Athena-Backed Experiments and Final Evidence
 
