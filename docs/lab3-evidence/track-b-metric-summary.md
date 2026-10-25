@@ -4,7 +4,17 @@
 
 The harness ran the four unchanged `OFFER_TEST_CASES` through local FAISS retrieval and Bedrock. Every CSV row records `run_id`, retrieval strategy, judge model, generation model, region, customer ID, retrieved chunk IDs, and whether the policy fallback replaced the model output. `rag_eval.csv` consolidates runs; timestamped `rag_eval_*.csv` files and per-run logs preserve individual execution evidence.
 
-The configured Claude Haiku 4.5 inference profile was unavailable for inference because this personal AWS account requires Anthropic use-case details to be submitted. No form was submitted. To continue in the authorized personal account, the initial comparison used Nova Lite for generation and Nova Pro for judging. The strategy comparison below uses the same generation and judge models for all three strategies. An earlier Nova Lite judge run is preserved, but its answer-relevancy judge returned parser failures, so it is excluded from cross-strategy conclusions. The final guarded run used Nova Pro for generation and judging.
+The Anthropic first-time-use form was submitted for the personal AWS account, and the Haiku 4.5 agreement became available. Existing Nova runs remain useful comparisons: the strategy comparison below uses Nova Lite for generation and Nova Pro for judging; an earlier Nova Lite judge run is preserved, but its answer-relevancy judge returned parser failures, so it is excluded from cross-strategy conclusions. The final guarded Nova run used Nova Pro for generation and judging. A later Haiku 4.5 run is reported separately below.
+
+## Haiku 4.5 benchmark
+
+Run `haiku45-trackb-20261024` evaluated all four unchanged offer cases with retrieval strategy C, Haiku 4.5 for both generation and RAGAS judging, and the existing deterministic policy fallback enabled. Results are in `rag_eval_20261025T021342.csv` and are also appended to `rag_eval.csv`.
+
+| Generation / judge | Faithfulness mean | Answer relevancy mean | Context recall mean | Fallback activations |
+|---|---:|---:|---:|---:|
+| Haiku 4.5 / Haiku 4.5 | 0.458 | 0.325 | 0.608 | 3 of 4 |
+
+This four-case run is descriptive, not a controlled comparison that isolates the generator: both the generation model and the judge changed from the Nova baselines. The observed means were below the diagnostic targets (0.80, 0.75, and 0.70). RAGAS scores depend on the judge, so these Haiku-judged values should not be directly interpreted as a model-only improvement or regression against Nova-Pro-judged results. The CSV records case scores and model IDs, but not token usage or billed cost.
 
 ## Retrieval strategy comparison
 
@@ -37,4 +47,4 @@ With strategy C, Nova Pro generation, Nova Pro judging, and the fallback enabled
 
 ## Limitations
 
-The final fallback is a lightweight deterministic claim filter, not a complete semantic verifier. It catches several observed classes of unsupported statements, but a different ungrounded claim may pass. The stronger Nova Pro judge also rated conservative fallback wording as less relevant to the offer request. A production implementation should validate structured benefit claims against policy data and test more customers, while preserving the account-level Anthropic access limitation in the evaluation record.
+The final fallback is a lightweight deterministic claim filter, not a complete semantic verifier. It catches several observed classes of unsupported statements, but a different ungrounded claim may pass. The Nova Pro judge rated conservative fallback wording as less relevant to the offer request; in the Haiku run, the fallback activated for three of four cases. A production implementation should validate structured benefit claims against policy data and test more customers.
