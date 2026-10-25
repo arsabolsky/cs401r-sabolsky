@@ -1,2 +1,8 @@
+Bedrock access verification
+Date: 2026-10-25 UTC
+AWS account: 573693339848 (personal northstar profile)
+Region: us-east-1
+Agreement status: AVAILABLE
+
 PASS  Titan embeddings        dim=1024
 PASS  Claude Haiku 4.5        'OK'

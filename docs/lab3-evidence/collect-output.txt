@@ -1,4 +1,4 @@
-2026/10/24 19:49:21 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /Users/arsabolsky/.venvs/cs401r-lab3/lib/python3.12/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+2026/10/24 20:32:17 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /Users/arsabolsky/.venvs/cs401r-lab3/lib/python3.12/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
 ==> Lab 3 evidence  (track B, us-east-1)
 [1/5] Identity
   OK    account 573693339848  --  arn:aws:iam::573693339848:user/cs401r-lab
@@ -20,12 +20,12 @@
   OK    gate lift 95% CI excludes zero
   OK    slice-evaluation.csv  --  4 tiers
   OK    demo notebook  --  5 code cells, one clean run, 5 with output
-  OK    rag_eval.csv  --  40 test cases (harness has 4+)
+  OK    rag_eval.csv  --  44 test cases (harness has 4+)
 [4/5] AWS exports: Athena, MLflow, Model Registry
   OK    Athena query  --  ec771dc8-0f67-4991-b808-6c1f378ef70a SUCCEEDED, 682221 bytes scanned
   OK    MLflow App reuses Lab 1 infrastructure  --  northstar-dev-MLEngineer, s3://northstar-dev-data-573693339848/artifacts/mlflow/
   OK    MLflow runs  --  6 runs with params and metrics in 'northstar-churn'
-  OK    MLflow runs vary  --  eta, max_depth, num_round
+  OK    MLflow runs vary  --  num_round, eta, max_depth
   OK    consistency: MLflow  --  a tracked run matches auc_roc=0.7821
   OK    Model Registry  --  2 PendingManualApproval version(s); latest v2
   OK    consistency: registry  --  v1 metadata matches evaluation_metrics.json

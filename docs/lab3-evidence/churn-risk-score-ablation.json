@@ -1,0 +1,67 @@
+{
+  "run_id": "task3-churn-risk-score-ablation-20261024",
+  "evaluated_at_utc": "2026-10-25T02:27:13+00:00",
+  "athena_query_execution_id": "a37a9cd4-1ef8-4058-a067-3620a96b148c",
+  "data_source": "SageMaker Feature Store offline store via Athena",
+  "rows": 9999,
+  "split": {
+    "train": 6999,
+    "validation": 3000,
+    "random_state": 42,
+    "stratified": true
+  },
+  "xgboost_version": "3.4.1",
+  "configuration": {
+    "max_depth": 4,
+    "eta": 0.1,
+    "min_child_weight": 5,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "num_boost_round": 200,
+    "scale_pos_weight": "training negatives / positives",
+    "early_stopping_rounds": 20
+  },
+  "without_churn_risk_score": {
+    "auc_roc": 0.7820626133126134,
+    "precision_top10": 0.7166666666666667,
+    "recall_top10": 0.32575757575757575,
+    "feature_gain": {
+      "days_since_last_purchase": 83.63475799560547,
+      "customer_tenure_days": 12.67785358428955,
+      "purchase_frequency_30d": 43.95193862915039,
+      "purchase_frequency_90d": 11.85660171508789,
+      "purchase_frequency_180d": 13.375009536743164,
+      "avg_order_value": 21.476924896240234,
+      "total_spend_90d": 27.292369842529297,
+      "total_lifetime_value": 22.169870376586914,
+      "avg_basket_size_6m": 67.09427642822266,
+      "category_diversity_score": 14.832161903381348,
+      "online_to_store_ratio": 11.542259216308594
+    }
+  },
+  "with_churn_risk_score": {
+    "auc_roc": 0.7806160968660969,
+    "precision_top10": 0.7133333333333334,
+    "recall_top10": 0.3242424242424242,
+    "feature_gain": {
+      "days_since_last_purchase": 61.677085876464844,
+      "customer_tenure_days": 12.671887397766113,
+      "purchase_frequency_30d": 35.69390106201172,
+      "purchase_frequency_90d": 22.795909881591797,
+      "purchase_frequency_180d": 68.24224853515625,
+      "avg_order_value": 24.557912826538086,
+      "total_spend_90d": 14.762666702270508,
+      "total_lifetime_value": 17.217275619506836,
+      "avg_basket_size_6m": 11.884758949279785,
+      "category_diversity_score": 13.621509552001953,
+      "online_to_store_ratio": 13.667498588562012,
+      "churn_risk_score": 83.72118377685547
+    }
+  },
+  "recency_only_baseline_auc": 0.7232083657083657,
+  "with_vs_without_auc_lift": -0.0014465164465164992,
+  "with_vs_without_paired_bootstrap_95_ci": [
+    -0.006532145186661509,
+    0.004079319287437485
+  ]
+}
