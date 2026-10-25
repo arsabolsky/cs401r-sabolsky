@@ -263,3 +263,17 @@ aws sts get-caller-identity --query Account --output text
 bash scripts/collect-lab3-evidence.sh --track B
 bash scripts/check-secrets.sh
 ```
+
+## Lab 4 — XOps, Testing & CI/CD
+
+Lab 4 extends this repository with automated tests and a CI/CD path for the Lab 3 churn
+model. The Lab 4 starter kit is in its required shared-root locations: `buildspec.yml`,
+`pipeline.yaml`, `requirements.txt`, `pytest.ini`, `tests/`, and `models/churn/`. Existing
+Labs 1–3 files remain in place. The starter-kit guide and local TODO checklist are in
+`lab-4-xops-cicd/`.
+
+The starter files are scaffolding only. `models/churn/churn_model.py` still needs the
+Lab 3 training implementation, and the provided test files contain assertions to finish.
+Do not run the pipeline until the checklist's code and AWS prerequisites are complete:
+the stack starts a SageMaker training pipeline when it builds. Lab 4's eventual evidence
+files go in `docs/` with the exact names in the checklist and assignment guide.
