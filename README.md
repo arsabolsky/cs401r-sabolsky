@@ -217,7 +217,8 @@ python churn_training_skeleton.py \
   --feature-group-name "$FEATURE_GROUP" \
   --artifacts-bucket "$BUCKET" \
   --mlflow-arn "$MLFLOW_ARN" --run-name final \
-  --max-depth 4 --eta 0.1 --num-round 200 \
+  --max-depth 4 --eta 0.1 --num-round 200 --seed 42 \
+  --early-stopping-rounds 20 --verbose-eval 25 \
   --min-child-weight 5 --subsample 0.8 --colsample-bytree 0.8 \
   --output-data-dir docs/lab3-evidence 2>&1 | tee docs/lab3-evidence/train-final.log
 ```

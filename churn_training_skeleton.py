@@ -110,6 +110,12 @@ def parse_args():
     parser.add_argument("--max-depth", type=int, default=6)
     parser.add_argument("--eta", type=float, default=0.1)
     parser.add_argument("--num-round", type=int, default=200)
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed for reproducible training")
+    parser.add_argument("--early-stopping-rounds", type=int, default=20,
+                        help="Stop after this many rounds without validation improvement")
+    parser.add_argument("--verbose-eval", type=int, default=25,
+                        help="Print training metrics every N rounds")
     parser.add_argument("--min-child-weight", type=int, default=5)
     parser.add_argument("--subsample", type=float, default=0.8)
     parser.add_argument("--colsample-bytree", type=float, default=0.8)
@@ -393,19 +399,25 @@ def train_model(X_train: np.ndarray,
         "subsample": args.subsample,
         "colsample_bytree": args.colsample_bytree,
         "scale_pos_weight": spw,
-        "seed": 42,
+        "seed": args.seed,
         "verbosity": 1,
     }
 
-    print(f"\nTraining XGBoost with params: {json.dumps(params, indent=2)}")
+    training_config = {
+        "xgboost_params": params,
+        "num_boost_round": args.num_round,
+        "early_stopping_rounds": args.early_stopping_rounds,
+        "verbose_eval": args.verbose_eval,
+    }
+    print(f"\nTraining XGBoost with params: {json.dumps(training_config, indent=2)}")
 
     model = xgb.train(
         params=params,
         dtrain=dtrain,
         num_boost_round=args.num_round,
         evals=[(dtrain, "train"), (dval, "validation")],
-        early_stopping_rounds=20,
-        verbose_eval=25,
+        early_stopping_rounds=args.early_stopping_rounds,
+        verbose_eval=args.verbose_eval,
     )
 
     return model
@@ -751,6 +763,9 @@ def track_run(args, metrics: dict, scale_pos_weight: float) -> None:
     params = {
         "max_depth": args.max_depth, "eta": args.eta,
         "num_round": args.num_round,
+        "seed": args.seed,
+        "early_stopping_rounds": args.early_stopping_rounds,
+        "verbose_eval": args.verbose_eval,
         "min_child_weight": args.min_child_weight,
         "subsample": args.subsample,
         "colsample_bytree": args.colsample_bytree,
@@ -791,6 +806,9 @@ def save_and_register_model(model: xgb.Booster,
             "max_depth": args.max_depth,
             "eta": args.eta,
             "num_round": args.num_round,
+            "seed": args.seed,
+            "early_stopping_rounds": args.early_stopping_rounds,
+            "verbose_eval": args.verbose_eval,
         },
         "evaluation_metrics": metrics,
         "training_date": datetime.now(timezone.utc).isoformat(),
