@@ -42,11 +42,11 @@
 - `chunk_policy_document(text, doc_id, chunk_size=1200, overlap=180) -> list[PolicyChunk]`
 - `RAGOfferSystem.generate_offer(customer_context, question) -> {answer, contexts, chunk_ids}`
 
-- [ ] Write unit tests for source-preserving chunking, overlap, profile formatting/defaults, retrieval ranking/filtering, and generated response/context shape using a fake Bedrock runtime client.
-- [ ] Run the new tests and confirm failures are due to the missing module/functions.
-- [ ] Correct the prompt's wrong Gold upper spend threshold, wrong Platinum entry threshold, and nonexistent free expedited-shipping benefit against the policy files.
-- [ ] Implement Markdown-aware policy loading/chunking, Titan embedding/FAISS retrieval for strategies A/B/C, tier-aware prompt composition, and Haiku Converse invocation.
-- [ ] Pass the focused tests; run the existing Task 1 suite too; inspect the policy prompt diff; commit.
+- [x] Write unit tests for source-preserving chunking, overlap, profile formatting/defaults, retrieval ranking/filtering, and generated response/context shape using a fake Bedrock runtime client.
+- [x] Run the new tests and confirm failures are due to the missing module/functions.
+- [x] Correct the prompt's wrong Gold upper spend threshold, wrong Platinum entry threshold, and nonexistent free expedited-shipping benefit against the policy files.
+- [x] Implement Markdown-aware policy loading/chunking, Titan embedding/FAISS retrieval for strategies A/B/C, tier-aware prompt composition, and Haiku Converse invocation.
+- [x] Pass the focused tests; run the existing Task 1 suite too; inspect the policy prompt diff; commit.
 
 ### Task 2: Wire the RAG system into the evaluation harness
 
