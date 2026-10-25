@@ -367,6 +367,14 @@ def build_bedrock_judge(model_id: str, region: str = "us-east-1"):
     return llm, embeddings
 
 
+def append_rag_results(results: pd.DataFrame, canonical_path: str) -> None:
+    """Append rows while making reruns idempotent per run and customer."""
+    previous = pd.read_csv(canonical_path) if os.path.exists(canonical_path) else pd.DataFrame()
+    combined = pd.concat([previous, results], ignore_index=True)
+    combined = combined.drop_duplicates(subset=["run_id", "customer_id"], keep="last")
+    combined.to_csv(canonical_path, index=False)
+
+
 class RAGEvaluator:
 
     RAGAS_TARGETS = {
@@ -375,7 +383,8 @@ class RAGEvaluator:
         "context_recall": 0.70,
     }
 
-    def __init__(self, rag_invoke_fn, bedrock_model_id=None, region="us-east-1"):
+    def __init__(self, rag_invoke_fn, bedrock_model_id=None, region="us-east-1",
+                 retrieval_strategy="A", run_id=None):
         """
         Args:
             rag_invoke_fn:     callable(customer_context, question) ->
@@ -388,6 +397,8 @@ class RAGEvaluator:
         self.rag_invoke_fn = rag_invoke_fn
         self.bedrock_model_id = bedrock_model_id or DEFAULT_BEDROCK_MODEL_ID
         self.region = region
+        self.retrieval_strategy = retrieval_strategy.upper()
+        self.run_id = run_id or datetime.utcnow().strftime("%Y%m%dT%H%M%S")
 
     def run(self, test_cases: list[RAGTestCase]) -> pd.DataFrame:
         if not RAGAS_AVAILABLE:
@@ -396,6 +407,7 @@ class RAGEvaluator:
         print(f"\n── Running RAG Evaluation ({len(test_cases)} test cases) ──")
 
         dataset_dict = {"question": [], "answer": [], "contexts": [], "ground_truth": []}
+        metadata = {"customer_id": [], "chunk_ids": []}
 
         for tc in test_cases:
             print(f"  Evaluating {tc.customer_id}...")
@@ -407,6 +419,8 @@ class RAGEvaluator:
             dataset_dict["answer"].append(tc.generated_answer)
             dataset_dict["contexts"].append(tc.retrieved_contexts)
             dataset_dict["ground_truth"].append(tc.ground_truth)
+            metadata["customer_id"].append(tc.customer_id)
+            metadata["chunk_ids"].append(json.dumps(result.get("chunk_ids", [])))
 
         dataset = Dataset.from_dict(dataset_dict)
         # llm= and embeddings= are REQUIRED. Omit them and RAGAS silently falls
@@ -422,6 +436,12 @@ class RAGEvaluator:
         )
 
         results_df = scores.to_pandas()
+        for column, values in metadata.items():
+            results_df[column] = values
+        results_df["run_id"] = self.run_id
+        results_df["retrieval_strategy"] = self.retrieval_strategy
+        results_df["judge_model"] = self.bedrock_model_id
+        results_df["region"] = self.region
         self._print_results(results_df)
         return results_df
 
@@ -681,6 +701,12 @@ def main():
     parser.add_argument("--bedrock-model-id",
                         default=DEFAULT_BEDROCK_MODEL_ID)
     parser.add_argument("--vector-store-endpoint", default=None)
+    parser.add_argument("--retrieval-strategy", choices=["A", "B", "C"], default="A",
+                        help="Track B policy retrieval strategy to evaluate")
+    parser.add_argument("--run-id", default=None,
+                        help="Stable run identifier (defaults to a UTC timestamp)")
+    parser.add_argument("--without-profile-context", action="store_true",
+                        help="Ablation: omit profile summary from RAGAS contexts")
 
     # Track C args
     parser.add_argument("--agent-id", default=None)
@@ -699,57 +725,25 @@ def main():
         print("Track B: Offer Generation RAG Evaluation")
         print("=" * 50)
 
-        # TODO (Track B): put the implementation in the repo-root file
-        # `rag_offer_system.py`, then import and instantiate it here. Keep this
-        # adapter small; RAGEvaluator calls it once per OFFER_TEST_CASE.
-        #
-        # Implementation checklist for rag_offer_system.py:
-        #   Before loading the prompt, fix its three planted facts in
-        #   `prompt_templates/offer_generation_prompts.md`: Gold's upper spend
-        #   bound is $4,999.99, Platinum starts at $5,000, and free expedited
-        #   shipping is not offered to any tier. Verify against POL-LOY-011 and
-        #   POL-SHP-007 in `northstar-policy-docs/`.
-        #   1. Load `northstar-policy-docs/*.md`, preserve doc/section/chunk IDs,
-        #      and split with a documented size/overlap.
-        #   2. Embed chunks and queries with Titan V2, then retrieve from local
-        #      FAISS. Build/load the index once rather than per customer.
-        #   3. Apply the corrected `prompt_templates/offer_generation_prompts.md`
-        #      prompt and call Haiku through the `us.` Bedrock inference profile.
-        #   4. Pass the customer profile into the prompt AND include a concise
-        #      profile string in returned contexts so RAGAS can ground profile
-        #      claims. Include retrieved policy text in contexts as well.
-        #   5. Return exactly {"answer": str, "contexts": list[str]}; retain
-        #      retrieved chunk IDs separately for track-b-examples.md.
-        #   6. Keep the answer to 2-3 sentences, with a policy-backed incentive,
-        #      a category from top_categories, and a clear call to action.
-        #
-        # Suggested wiring after the system exists:
-        #   from rag_offer_system import RAGOfferSystem
-        #   rag_system = RAGOfferSystem(region=args.region)
-        #   rag_invoke_fn = rag_system.generate_offer
-        #
-        # Keep the adapter contract (customer_context, question) ->
-        # {"answer": str, "contexts": list[str]} unchanged so the four provided
-        # cases and RAGEvaluator continue to work.
-        def placeholder_rag_fn(context, question):
-            """Replace this adapter with the Track B system invocation."""
-            raise NotImplementedError(
-                "TODO: Replace this placeholder with your RAG system invocation.\n"
-                "The function should call your Bedrock + vector store pipeline\n"
-                "and return {'answer': str, 'contexts': list[str]}"
-            )
+        from rag_offer_system import RAGOfferSystem
 
-        evaluator = RAGEvaluator(rag_invoke_fn=placeholder_rag_fn,
+        rag_system = RAGOfferSystem(
+            region=args.region,
+            retrieval_strategy=args.retrieval_strategy,
+            return_profile_context=not args.without_profile_context,
+        )
+        evaluator = RAGEvaluator(rag_invoke_fn=rag_system.generate_offer,
                                  bedrock_model_id=args.bedrock_model_id,
-                                 region=args.region)
+                                 region=args.region,
+                                 retrieval_strategy=args.retrieval_strategy,
+                                 run_id=args.run_id)
         results = evaluator.run(OFFER_TEST_CASES)
         output_path = os.path.join(args.output_dir, f"rag_eval_{timestamp}.csv")
-        # This timestamped file is a raw single run. Evaluate all four cases at
-        # least twice, then consolidate the per-case rows into the rubric's
-        # fixed `docs/lab3-evidence/rag_eval.csv`, retaining a run number and the
-        # judge model so scores can be compared and summarized honestly.
         results.to_csv(output_path, index=False)
         print(f"Results saved to {output_path}")
+        canonical_path = os.path.join(args.output_dir, "rag_eval.csv")
+        append_rag_results(results, canonical_path)
+        print(f"Consolidated results saved to {canonical_path}")
 
     elif args.track == "C":
         print("Track C: Customer Service Agent Evaluation")
