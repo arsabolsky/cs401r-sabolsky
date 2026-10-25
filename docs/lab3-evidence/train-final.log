@@ -1,0 +1,50 @@
+============================================================
+NorthStar Churn Prediction — Training Script
+============================================================
+sagemaker.config INFO - Not applying SDK defaults from location: /opt/homebrew/share/sagemaker/config.yaml
+sagemaker.config INFO - Not applying SDK defaults from location: /Users/arsabolsky/Library/Application Support/sagemaker/config.yaml
+Athena QueryExecutionId: ec771dc8-0f67-4991-b808-6c1f378ef70a
+Preprocessing 9,999 samples...
+  Positive class rate: 22.0%
+  Feature matrix shape: (9999, 11)
+
+Train: 6,999 | Validation: 3,000
+
+Training XGBoost with params: {
+  "objective": "binary:logistic",
+  "eval_metric": [
+    "logloss",
+    "auc"
+  ],
+  "max_depth": 4,
+  "eta": 0.1,
+  "min_child_weight": 5,
+  "subsample": 0.8,
+  "colsample_bytree": 0.8,
+  "scale_pos_weight": 3.544805194805195,
+  "seed": 42,
+  "verbosity": 1
+}
+[0]	train-logloss:0.67335	train-auc:0.75318	validation-logloss:0.67359	validation-auc:0.74553
+[25]	train-logloss:0.52174	train-auc:0.80886	validation-logloss:0.53444	validation-auc:0.78157
+[40]	train-logloss:0.50228	train-auc:0.82516	validation-logloss:0.52317	validation-auc:0.78206
+
+── Evaluation Results ──────────────────────────────
+  precision_top10          : 0.7167  (threshold: 0.5000)  ✓ PASS
+  recall_top10             : 0.3258  (threshold: 0.2500)  ✓ PASS
+  auc_lift 95% CI          : [0.0404, 0.0776]  (must exclude 0)  ✓ PASS
+  All thresholds passed ✓
+2026/10/24 18:07:42 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /Users/arsabolsky/.venvs/cs401r-lab3/lib/python3.12/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+🏃 View run final at: https://mlflow.sagemaker.us-east-1.app.aws/#/experiments/1/runs/8c55caef2bb34ce0940e47620d622c98
+🧪 View experiment at: https://mlflow.sagemaker.us-east-1.app.aws/#/experiments/1
+/Users/arsabolsky/Library/Mobile Documents/com~apple~CloudDocs/6. Fall 2026/CS 401R Engineering The Ai Enterprise/cs401r-sabolsky/churn_training_skeleton.py:783: UserWarning: [18:07:43] WARNING: /Users/runner/work/xgboost/xgboost/src/c_api/c_api.cc:1553: Saving model in the UBJSON format as default.  You can use a file extension: `json` or `ubj` to choose between formats.
+  model.save_model(model_path)
+
+✓ Model saved to /private/tmp/lab3-final-model/model.xgb
+/Users/arsabolsky/Library/Mobile Documents/com~apple~CloudDocs/6. Fall 2026/CS 401R Engineering The Ai Enterprise/cs401r-sabolsky/churn_training_skeleton.py:826: UserWarning: [18:07:44] WARNING: /Users/runner/work/xgboost/xgboost/src/c_api/c_api.cc:1553: Saving model in the UBJSON format as default.  You can use a file extension: `json` or `ubj` to choose between formats.
+  model.save_model(container_model)
+Registered model package: arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/2
+
+============================================================
+Training complete. AUC-ROC: 0.7821
+============================================================

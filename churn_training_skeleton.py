@@ -645,7 +645,7 @@ def save_slice_evaluation_csv(results: dict, path: str) -> str:
     fields = ["tier", "n", "positives", "auc_roc", "recall_top10", "too_small",
               "aggregate_recall_top10", "below_aggregate_by_10pp", "weakest"]
     with open(path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fields)
+        writer = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for tier in sorted(results):
             writer.writerow({"tier": tier, **results[tier]})

@@ -82,8 +82,8 @@
 - Create: `docs/lab3-evidence/train-final.log`, `evaluation_metrics.json`, `slice-evaluation.csv`, `confusion-matrix.png`, `feature-importance.png`
 - Create: `docs/lab3-evaluation-report.md`
 
-- [ ] Verify AWS identity, Feature Store state, MLflow App status, and existing model package group.
-- [ ] Run meaningful parameter variations through Athena and log each run to the MLflow App without registering exploratory models.
-- [ ] Select a passing configuration; run the final Athena-backed experiment with `--register-model` and save its console output.
-- [ ] Verify 9,999 customers, required metrics, tier slices, MLflow run, and PendingManualApproval package metrics.
-- [ ] Write the evaluation report from the actual outputs, rerun the full unit suite, inspect `git diff`, and commit final evidence.
+- [x] Verify AWS identity, Feature Store state, MLflow App status, and existing model package group.
+- [x] Run meaningful parameter variations through Athena and log each run to the MLflow App without registering exploratory models.
+- [x] Select a passing configuration; run the final Athena-backed experiment with `--register-model` and save its console output.
+- [x] Verify 9,999 customers, required metrics, tier slices, MLflow run, and PendingManualApproval package metrics.
+- [x] Write the evaluation report from the actual outputs, rerun the full unit suite, inspect `git diff`, and commit final evidence.
