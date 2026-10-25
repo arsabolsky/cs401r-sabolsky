@@ -188,6 +188,16 @@ class PromptPolicyFactTests(unittest.TestCase):
         self.assertNotIn("Gold ($2,000 - $9,999.99)", tier_block)
         self.assertNotIn("Platinum ($10,000+)", tier_block)
 
+    def test_prompt_blocks_unretrieved_promotion_terms(self):
+        markdown = Path("prompt_templates/offer_generation_prompts.md").read_text()
+        system_block = markdown.split("## Template 1:", 1)[1].split("## Template 2:", 1)[0]
+        guardrail_block = markdown.split("## Template 5:", 1)[1]
+
+        self.assertIn("Never create a discount", system_block)
+        self.assertIn("expiration date", system_block)
+        self.assertIn("minimum purchase", system_block)
+        self.assertIn("retrieved policy\n  explicitly states", guardrail_block)
+
 
 if __name__ == "__main__":
     unittest.main()
