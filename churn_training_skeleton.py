@@ -599,7 +599,7 @@ def evaluate_slices(model: xgb.Booster,
     Evaluate model performance by slice (e.g., loyalty_tier, age_band).
     Flag slices where recall@10% drops more than 10pp below aggregate.
 
-    Tiers with fewer than 50 rows or fewer than 20 examples of either class are
+    Tiers with fewer than 50 rows or fewer than 30 examples of either class are
     marked too_small. Metrics remain visible, but should not be over-interpreted.
     """
     y_val = np.asarray(y_val).astype(int)
@@ -623,7 +623,7 @@ def evaluate_slices(model: xgb.Booster,
         auc_value = (float(roc_auc_score(labels, slice_scores))
                      if len(np.unique(labels)) == 2 else None)
         negatives = int(len(labels) - positives)
-        too_small = len(labels) < 50 or positives < 20 or negatives < 20
+        too_small = len(labels) < 50 or positives < 30 or negatives < 30
         slice_results[slice_value] = {
             "n": int(len(labels)), "positives": positives,
             "auc_roc": auc_value, "recall_top10": recall,

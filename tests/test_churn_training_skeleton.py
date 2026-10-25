@@ -141,12 +141,14 @@ class SliceEvaluationTests(unittest.TestCase):
     def test_evaluate_slices_reports_metrics_and_flags_small_tier(self):
         small_scores = np.linspace(1.0, 0.05, 20)
         large_scores = np.linspace(0.99, 0.01, 100)
-        scores = np.concatenate([small_scores, large_scores])
-        labels = np.zeros(120, dtype=int)
+        platinum_scores = np.linspace(0.98, 0.02, 100)
+        scores = np.concatenate([small_scores, large_scores, platinum_scores])
+        labels = np.zeros(220, dtype=int)
         labels[[0, 1, 2, 19]] = 1
         labels[20 + np.array([0, 1, 2, 3, 4] + list(range(10, 35)))] = 1
-        tiers = pd.Series(["Silver"] * 20 + ["Gold"] * 100)
-        features = np.zeros((120, len(training.FEATURE_COLUMNS)))
+        labels[120 + np.arange(21)] = 1
+        tiers = pd.Series(["Silver"] * 20 + ["Gold"] * 100 + ["Platinum"] * 100)
+        features = np.zeros((220, len(training.FEATURE_COLUMNS)))
 
         class FixedPredictor:
             def predict(self, _matrix):
@@ -166,6 +168,8 @@ class SliceEvaluationTests(unittest.TestCase):
         self.assertFalse(results["Gold"]["too_small"])
         self.assertIsInstance(results["Gold"]["auc_roc"], float)
         self.assertIn("aggregate_recall_top10", results["Gold"])
+        self.assertEqual(results["Platinum"]["positives"], 21)
+        self.assertTrue(results["Platinum"]["too_small"])
 
     def test_slice_csv_has_rubric_columns(self):
         rows = {
