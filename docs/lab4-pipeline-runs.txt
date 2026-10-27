@@ -1,0 +1,15 @@
+Lab 4 CodePipeline execution history
+
+Captured: 2026-10-26 19:17:43 MDT
+AWS account: 573693339848 (personal northstar profile, us-east-1)
+Pipeline: northstar-pipeline
+GitHub connection: northstar-github
+
+Execution 1ea56ed4-dab2-44dd-9880-16067af4b6e7
+Status: Failed
+Stage: Source
+Action: GitHubSource
+AWS failure summary: Connection northstar-github is not available
+Build stage: not started
+
+Interpretation: this was the initial stack-created execution while the GitHub CodeConnections resource was still PENDING. It is an authorization/setup failure, not a test-failure demonstration and not evidence that test/build/evaluation/registration gates work. Rerun after completing GitHub authorization and append all later pipeline executions here.
