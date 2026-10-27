@@ -28,3 +28,14 @@ Connection ARN: arn:aws:codeconnections:us-east-1:573693339848:connection/71ab0f
         }
     }
 ]
+
+===== northstar-cicd CloudFormation =====
+AWS account: 573693339848 (personal northstar profile), region: us-east-1
+Template validation: passed with CAPABILITY_NAMED_IAM
+CloudFormation stack: northstar-cicd
+CodePipeline: northstar-pipeline
+CodeBuild project: northstar-ci
+Current stack status after policy reconciliation: UPDATE_COMPLETE
+CodeBuild policy includes CreateModelPackage and UpdateModelPackage for the
+starter RegisterModel/post_build rejection path.
+GitHub connection status: PENDING; OAuth authorization is still required.
