@@ -1,0 +1,347 @@
+
+Warning: Deprecated Parameter
+
+The parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile"
+instead.
+module.vpc.aws_vpc.this: Creating...
+module.iam.aws_iam_policy.this: Creating...
+module.iam.aws_iam_role.data_engineer: Creating...
+module.iam.aws_iam_role.model_monitor: Creating...
+module.glue.aws_glue_catalog_database.this: Creating...
+module.iam.aws_iam_role.ml_engineer: Creating...
+module.storage.aws_s3_bucket.data: Creating...
+module.iam.aws_iam_policy.this: Creation complete after 1s [id=arn:aws:iam::573693339848:policy/NorthStarMLEngineerPolicy]
+module.iam.aws_iam_role.data_engineer: Creation complete after 1s [id=northstar-dev-DataEngineer]
+module.iam.aws_iam_role.model_monitor: Creation complete after 1s [id=northstar-dev-ModelMonitor]
+module.iam.aws_iam_role.ml_engineer: Creation complete after 1s [id=northstar-dev-MLEngineer]
+module.iam.aws_iam_role_policy_attachment.this: Creating...
+module.iam.aws_iam_role_policy_attachment.this: Creation complete after 0s [id=northstar-dev-MLEngineer-20261027004716265000000001]
+module.glue.aws_glue_catalog_database.this: Creation complete after 1s [id=573693339848:northstar_dev]
+module.storage.aws_s3_bucket.data: Creation complete after 3s [id=northstar-dev-data-573693339848]
+module.storage.aws_s3_bucket_public_access_block.this: Creating...
+module.storage.aws_s3_bucket_server_side_encryption_configuration.this: Creating...
+module.storage.aws_s3_object.prefixes["artifacts/"]: Creating...
+module.storage.aws_s3_bucket_versioning.this: Creating...
+module.iam.aws_iam_policy.data_engineer_policy: Creating...
+module.glue.aws_s3_object.feature_engineering_module: Creating...
+module.storage.aws_s3_object.prefixes["processed/"]: Creating...
+module.storage.aws_s3_object.prefixes["features/"]: Creating...
+module.storage.aws_s3_object.prefixes["raw/"]: Creating...
+module.iam.aws_iam_policy.data_engineer_policy: Creation complete after 0s [id=arn:aws:iam::573693339848:policy/northstar-dev-DataEngineerPolicy]
+module.iam.aws_iam_policy.model_monitor_policy: Creating...
+module.storage.aws_s3_bucket_public_access_block.this: Creation complete after 1s [id=northstar-dev-data-573693339848]
+module.storage.aws_s3_bucket_server_side_encryption_configuration.this: Creation complete after 1s [id=northstar-dev-data-573693339848]
+module.glue.aws_s3_object.transform_script: Creating...
+module.glue.aws_s3_object.feature_engineer_script: Creating...
+module.storage.aws_s3_object.prefixes["artifacts/"]: Creation complete after 1s [id=artifacts/]
+module.storage.aws_s3_object.prefixes["processed/"]: Creation complete after 1s [id=processed/]
+module.storage.aws_s3_object.prefixes["raw/"]: Creation complete after 1s [id=raw/]
+module.storage.aws_s3_object.prefixes["features/"]: Creation complete after 1s [id=features/]
+module.iam.aws_iam_role_policy_attachment.data_engineer: Creating...
+module.glue.aws_glue_crawler.raw: Creating...
+module.iam.aws_iam_policy.model_monitor_policy: Creation complete after 1s [id=arn:aws:iam::573693339848:policy/northstar-dev-ModelMonitorPolicy]
+module.iam.aws_iam_role_policy_attachment.model_monitor: Creating...
+module.iam.aws_iam_role_policy_attachment.data_engineer: Creation complete after 0s [id=northstar-dev-DataEngineer-20261027004718990500000002]
+module.glue.aws_s3_object.transform_script: Creation complete after 0s [id=artifacts/glue/transform.py]
+module.iam.aws_iam_role_policy_attachment.model_monitor: Creation complete after 0s [id=northstar-dev-ModelMonitor-20261027004719168300000003]
+module.feature_store.aws_sagemaker_feature_group.feature_group: Creating...
+module.storage.aws_s3_bucket_versioning.this: Creation complete after 2s [id=northstar-dev-data-573693339848]
+module.storage.aws_s3_bucket_lifecycle_configuration.this[0]: Creating...
+module.vpc.aws_vpc.this: Still creating... [00m10s elapsed]
+module.glue.aws_glue_crawler.raw: Creation complete after 9s [id=northstar-dev-raw-crawler]
+module.vpc.aws_vpc.this: Creation complete after 13s [id=vpc-041b2ca363014d96e]
+module.vpc.aws_internet_gateway.this: Creating...
+module.vpc.aws_subnet.private: Creating...
+module.vpc.aws_route_table.private: Creating...
+module.vpc.aws_subnet.public: Creating...
+module.vpc.aws_security_group.this: Creating...
+module.vpc.aws_internet_gateway.this: Creation complete after 1s [id=igw-04092de36fca1d0eb]
+module.vpc.aws_eip.this[0]: Creating...
+module.vpc.aws_route_table.this: Creating...
+module.feature_store.aws_sagemaker_feature_group.feature_group: Still creating... [00m10s elapsed]
+module.vpc.aws_route_table.private: Creation complete after 1s [id=rtb-0172da0635f48b6d8]
+module.vpc.aws_subnet.private: Creation complete after 1s [id=subnet-0b40e981a62214439]
+module.vpc.aws_route_table_association.private: Creating...
+module.vpc.aws_route_table_association.private: Creation complete after 1s [id=rtbassoc-00853b0bffd39ac61]
+module.storage.aws_s3_bucket_lifecycle_configuration.this[0]: Still creating... [00m10s elapsed]
+module.vpc.aws_route_table.this: Creation complete after 2s [id=rtb-0c85eb91adcd63864]
+module.vpc.aws_eip.this[0]: Creation complete after 2s [id=eipalloc-092fa291565fd30dc]
+module.vpc.aws_security_group.this: Creation complete after 4s [id=sg-0236229742012992d]
+module.glue.aws_glue_connection.vpc: Creating...
+module.glue.aws_glue_connection.vpc: Creation complete after 0s [id=573693339848:northstar-dev-vpc-connection]
+module.glue.aws_glue_job.transform: Creating...
+module.glue.aws_glue_job.transform: Creation complete after 1s [id=northstar-dev-transform]
+module.vpc.aws_subnet.public: Still creating... [00m10s elapsed]
+module.feature_store.aws_sagemaker_feature_group.feature_group: Still creating... [00m20s elapsed]
+module.vpc.aws_subnet.public: Creation complete after 12s [id=subnet-0f0feffdad986919b]
+module.storage.aws_s3_bucket_lifecycle_configuration.this[0]: Still creating... [00m20s elapsed]
+module.vpc.aws_route_table_association.this: Creating...
+module.vpc.aws_nat_gateway.this[0]: Creating...
+module.vpc.aws_route_table_association.this: Creation complete after 0s [id=rtbassoc-0c84b090c383cff13]
+module.feature_store.aws_sagemaker_feature_group.feature_group: Still creating... [00m30s elapsed]
+module.storage.aws_s3_bucket_lifecycle_configuration.this[0]: Still creating... [00m30s elapsed]
+module.vpc.aws_nat_gateway.this[0]: Still creating... [00m10s elapsed]
+module.feature_store.aws_sagemaker_feature_group.feature_group: Still creating... [00m40s elapsed]
+module.storage.aws_s3_bucket_lifecycle_configuration.this[0]: Still creating... [00m40s elapsed]
+module.vpc.aws_nat_gateway.this[0]: Still creating... [00m20s elapsed]
+module.feature_store.aws_sagemaker_feature_group.feature_group: Creation complete after 43s [id=northstar-dev-customer-features]
+module.storage.aws_s3_bucket_lifecycle_configuration.this[0]: Still creating... [00m50s elapsed]
+module.vpc.aws_nat_gateway.this[0]: Still creating... [00m30s elapsed]
+module.storage.aws_s3_bucket_lifecycle_configuration.this[0]: Creation complete after 57s [id=northstar-dev-data-573693339848]
+module.vpc.aws_nat_gateway.this[0]: Still creating... [00m40s elapsed]
+module.vpc.aws_nat_gateway.this[0]: Still creating... [00m50s elapsed]
+module.vpc.aws_nat_gateway.this[0]: Still creating... [01m00s elapsed]
+module.vpc.aws_nat_gateway.this[0]: Still creating... [01m10s elapsed]
+module.vpc.aws_nat_gateway.this[0]: Still creating... [01m20s elapsed]
+module.vpc.aws_nat_gateway.this[0]: Creation complete after 1m25s [id=nat-0e4e342c6fe53ed74]
+module.vpc.aws_route.private_nat[0]: Creating...
+module.vpc.aws_route.private_nat[0]: Creation complete after 1s [id=r-rtb-0172da0635f48b6d81080289494]
+
+Warning: Applied changes may be incomplete
+
+The plan was created with the -target option in effect, so some changes
+requested in the configuration may have been ignored and the output values
+may not be fully updated. Run the following command to verify that no other
+changes are pending:
+    terraform plan
+
+Note that the -target option is not suitable for routine use, and is provided
+only for exceptional situations such as recovering from errors or mistakes,
+or when Terraform specifically suggests to use it as part of an error
+message.
+
+Error: reading S3 Object (artifacts/glue/feature_engineer.py): couldn't find resource
+
+  with module.glue.aws_s3_object.feature_engineer_script,
+  on ../../modules/glue/main.tf line 65, in resource "aws_s3_object" "feature_engineer_script":
+  65: resource "aws_s3_object" "feature_engineer_script" {
+
+
+Error: reading S3 Object (artifacts/glue/feature_engineering.py): couldn't find resource
+
+  with module.glue.aws_s3_object.feature_engineering_module,
+  on ../../modules/glue/main.tf line 74, in resource "aws_s3_object" "feature_engineering_module":
+  74: resource "aws_s3_object" "feature_engineering_module" {
+
+
+Warning: Deprecated Parameter
+
+The parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile"
+instead.
+module.glue.data.aws_region.current: Reading...
+module.storage.data.aws_caller_identity.current: Reading...
+module.iam.data.aws_region.current: Reading...
+module.iam.data.aws_caller_identity.current: Reading...
+module.vpc.aws_vpc.this: Refreshing state... [id=vpc-041b2ca363014d96e]
+module.iam.aws_iam_role.model_monitor: Refreshing state... [id=northstar-dev-ModelMonitor]
+module.iam.aws_iam_policy.this: Refreshing state... [id=arn:aws:iam::573693339848:policy/NorthStarMLEngineerPolicy]
+module.iam.aws_iam_role.data_engineer: Refreshing state... [id=northstar-dev-DataEngineer]
+module.glue.aws_glue_catalog_database.this: Refreshing state... [id=573693339848:northstar_dev]
+module.iam.aws_iam_role.ml_engineer: Refreshing state... [id=northstar-dev-MLEngineer]
+module.glue.data.aws_region.current: Read complete after 0s [id=us-east-1]
+module.iam.data.aws_region.current: Read complete after 0s [id=us-east-1]
+module.iam.data.aws_caller_identity.current: Read complete after 0s [id=573693339848]
+module.storage.data.aws_caller_identity.current: Read complete after 0s [id=573693339848]
+module.storage.aws_s3_bucket.data: Refreshing state... [id=northstar-dev-data-573693339848]
+module.iam.aws_iam_role_policy_attachment.this: Refreshing state... [id=northstar-dev-MLEngineer-20261027004716265000000001]
+module.vpc.aws_subnet.private: Refreshing state... [id=subnet-0b40e981a62214439]
+module.vpc.aws_security_group.this: Refreshing state... [id=sg-0236229742012992d]
+module.glue.aws_glue_connection.vpc: Refreshing state... [id=573693339848:northstar-dev-vpc-connection]
+module.iam.aws_iam_policy.model_monitor_policy: Refreshing state... [id=arn:aws:iam::573693339848:policy/northstar-dev-ModelMonitorPolicy]
+module.iam.aws_iam_policy.data_engineer_policy: Refreshing state... [id=arn:aws:iam::573693339848:policy/northstar-dev-DataEngineerPolicy]
+module.glue.aws_s3_object.feature_engineer_script: Refreshing state... [id=artifacts/glue/feature_engineer.py]
+module.glue.aws_s3_object.transform_script: Refreshing state... [id=artifacts/glue/transform.py]
+module.glue.aws_s3_object.feature_engineering_module: Refreshing state... [id=artifacts/glue/feature_engineering.py]
+module.glue.aws_glue_crawler.raw: Refreshing state... [id=northstar-dev-raw-crawler]
+module.iam.aws_iam_role_policy_attachment.data_engineer: Refreshing state... [id=northstar-dev-DataEngineer-20261027004718990500000002]
+module.iam.aws_iam_role_policy_attachment.model_monitor: Refreshing state... [id=northstar-dev-ModelMonitor-20261027004719168300000003]
+module.feature_store.aws_sagemaker_feature_group.feature_group: Refreshing state... [id=northstar-dev-customer-features]
+module.glue.aws_glue_job.transform: Refreshing state... [id=northstar-dev-transform]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # module.glue.aws_glue_job.feature_engineer will be created
+  + resource "aws_glue_job" "feature_engineer" {
+      + arn               = (known after apply)
+      + connections       = [
+          + "northstar-dev-vpc-connection",
+        ]
+      + default_arguments = {
+          + "--extra-py-files"     = "s3://northstar-dev-data-573693339848/artifacts/glue/feature_engineering.py"
+          + "--feature_group_name" = "northstar-dev-customer-features"
+          + "--input_path"         = "s3://northstar-dev-data-573693339848/processed/customers/"
+          + "--output_path"        = "s3://northstar-dev-data-573693339848/features/customers/"
+          + "--region"             = "us-east-1"
+        }
+      + glue_version      = "4.0"
+      + id                = (known after apply)
+      + max_capacity      = (known after apply)
+      + name              = "northstar-dev-feature-engineer"
+      + number_of_workers = 2
+      + role_arn          = "arn:aws:iam::573693339848:role/northstar-dev-DataEngineer"
+      + tags_all          = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "terraform"
+          + "Project"     = "northstar"
+        }
+      + timeout           = (known after apply)
+      + worker_type       = "G.1X"
+
+      + command {
+          + name            = "glueetl"
+          + python_version  = "3"
+          + runtime         = (known after apply)
+          + script_location = "s3://northstar-dev-data-573693339848/artifacts/glue/feature_engineer.py"
+        }
+
+      + execution_property (known after apply)
+
+      + notification_property (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+Warning: Resource targeting is in effect
+
+You are creating a plan with the -target option, which means that the result
+of this plan may not represent all of the changes requested by the current
+configuration.
+
+The -target option is not for routine use, and is provided only for
+exceptional situations such as recovering from errors or mistakes, or when
+Terraform specifically suggests to use it as part of an error message.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: 
+Error: error asking for approval: EOF
+
+
+Warning: Deprecated Parameter
+
+The parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile"
+instead.
+Acquiring state lock. This may take a few moments...
+module.glue.data.aws_region.current: Reading...
+module.glue.aws_glue_catalog_database.this: Refreshing state... [id=573693339848:northstar_dev]
+module.iam.data.aws_caller_identity.current: Reading...
+module.storage.data.aws_caller_identity.current: Reading...
+module.iam.data.aws_region.current: Reading...
+module.iam.aws_iam_role.ml_engineer: Refreshing state... [id=northstar-dev-MLEngineer]
+module.iam.aws_iam_policy.this: Refreshing state... [id=arn:aws:iam::573693339848:policy/NorthStarMLEngineerPolicy]
+module.iam.aws_iam_role.model_monitor: Refreshing state... [id=northstar-dev-ModelMonitor]
+module.vpc.aws_vpc.this: Refreshing state... [id=vpc-041b2ca363014d96e]
+module.iam.aws_iam_role.data_engineer: Refreshing state... [id=northstar-dev-DataEngineer]
+module.glue.data.aws_region.current: Read complete after 0s [id=us-east-1]
+module.iam.data.aws_region.current: Read complete after 0s [id=us-east-1]
+module.storage.data.aws_caller_identity.current: Read complete after 1s [id=573693339848]
+module.storage.aws_s3_bucket.data: Refreshing state... [id=northstar-dev-data-573693339848]
+module.iam.data.aws_caller_identity.current: Read complete after 1s [id=573693339848]
+module.iam.aws_iam_role_policy_attachment.this: Refreshing state... [id=northstar-dev-MLEngineer-20261027004716265000000001]
+module.vpc.aws_subnet.private: Refreshing state... [id=subnet-0b40e981a62214439]
+module.vpc.aws_security_group.this: Refreshing state... [id=sg-0236229742012992d]
+module.glue.aws_glue_connection.vpc: Refreshing state... [id=573693339848:northstar-dev-vpc-connection]
+module.iam.aws_iam_policy.model_monitor_policy: Refreshing state... [id=arn:aws:iam::573693339848:policy/northstar-dev-ModelMonitorPolicy]
+module.iam.aws_iam_policy.data_engineer_policy: Refreshing state... [id=arn:aws:iam::573693339848:policy/northstar-dev-DataEngineerPolicy]
+module.glue.aws_s3_object.transform_script: Refreshing state... [id=artifacts/glue/transform.py]
+module.glue.aws_s3_object.feature_engineering_module: Refreshing state... [id=artifacts/glue/feature_engineering.py]
+module.glue.aws_s3_object.feature_engineer_script: Refreshing state... [id=artifacts/glue/feature_engineer.py]
+module.glue.aws_glue_crawler.raw: Refreshing state... [id=northstar-dev-raw-crawler]
+module.iam.aws_iam_role_policy_attachment.model_monitor: Refreshing state... [id=northstar-dev-ModelMonitor-20261027004719168300000003]
+module.iam.aws_iam_role_policy_attachment.data_engineer: Refreshing state... [id=northstar-dev-DataEngineer-20261027004718990500000002]
+module.feature_store.aws_sagemaker_feature_group.feature_group: Refreshing state... [id=northstar-dev-customer-features]
+module.glue.aws_glue_job.transform: Refreshing state... [id=northstar-dev-transform]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # module.glue.aws_glue_job.feature_engineer will be created
+  + resource "aws_glue_job" "feature_engineer" {
+      + arn               = (known after apply)
+      + connections       = [
+          + "northstar-dev-vpc-connection",
+        ]
+      + default_arguments = {
+          + "--extra-py-files"     = "s3://northstar-dev-data-573693339848/artifacts/glue/feature_engineering.py"
+          + "--feature_group_name" = "northstar-dev-customer-features"
+          + "--input_path"         = "s3://northstar-dev-data-573693339848/processed/customers/"
+          + "--output_path"        = "s3://northstar-dev-data-573693339848/features/customers/"
+          + "--region"             = "us-east-1"
+        }
+      + glue_version      = "4.0"
+      + id                = (known after apply)
+      + max_capacity      = (known after apply)
+      + name              = "northstar-dev-feature-engineer"
+      + number_of_workers = 2
+      + role_arn          = "arn:aws:iam::573693339848:role/northstar-dev-DataEngineer"
+      + tags_all          = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "terraform"
+          + "Project"     = "northstar"
+        }
+      + timeout           = (known after apply)
+      + worker_type       = "G.1X"
+
+      + command {
+          + name            = "glueetl"
+          + python_version  = "3"
+          + runtime         = (known after apply)
+          + script_location = "s3://northstar-dev-data-573693339848/artifacts/glue/feature_engineer.py"
+        }
+
+      + execution_property (known after apply)
+
+      + notification_property (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+module.glue.aws_glue_job.feature_engineer: Creating...
+module.glue.aws_glue_job.feature_engineer: Creation complete after 1s [id=northstar-dev-feature-engineer]
+
+Warning: Resource targeting is in effect
+
+You are creating a plan with the -target option, which means that the result
+of this plan may not represent all of the changes requested by the current
+configuration.
+
+The -target option is not for routine use, and is provided only for
+exceptional situations such as recovering from errors or mistakes, or when
+Terraform specifically suggests to use it as part of an error message.
+
+Warning: Applied changes may be incomplete
+
+The plan was created with the -target option in effect, so some changes
+requested in the configuration may have been ignored and the output values
+may not be fully updated. Run the following command to verify that no other
+changes are pending:
+    terraform plan
+
+Note that the -target option is not suitable for routine use, and is provided
+only for exceptional situations such as recovering from errors or mistakes,
+or when Terraform specifically suggests to use it as part of an error
+message.
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+data_engineer_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-DataEngineer"
+feature_group_name = "northstar-dev-customer-features"
+glue_crawler_name = "northstar-dev-raw-crawler"
+glue_feature_job_name = "northstar-dev-feature-engineer"
+glue_transform_job_name = "northstar-dev-transform"
+ml_engineer_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-MLEngineer"
+model_monitor_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-ModelMonitor"
+private_subnet_id = "subnet-0b40e981a62214439"
+public_subnet_id = "subnet-0f0feffdad986919b"
+s3_bucket_name = "northstar-dev-data-573693339848"
+vpc_id = "vpc-041b2ca363014d96e"
