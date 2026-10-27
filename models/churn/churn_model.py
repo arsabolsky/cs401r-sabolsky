@@ -49,6 +49,8 @@ from __future__ import annotations
 import numpy as np  # noqa: F401
 import pandas as pd  # noqa: F401
 import xgboost as xgb  # noqa: F401
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
 
 # Must match the columns your Lab 3 model was trained on, in the same order.
 FEATURE_COLUMNS = [
@@ -66,6 +68,62 @@ FEATURE_COLUMNS = [
 ]
 
 LABEL = "churn_label"
+
+BASELINE_FEATURE = "days_since_last_purchase"
+EVAL_THRESHOLDS = {"precision_top10": 0.50, "recall_top10": 0.25}
+
+
+def _top_fraction_mask(scores: np.ndarray, fraction: float = 0.10) -> np.ndarray:
+    """Select exactly ceil(fraction * n) highest scores, stably on ties."""
+    scores = np.asarray(scores)
+    count = int(np.ceil(len(scores) * fraction))
+    mask = np.zeros(len(scores), dtype=bool)
+    if count:
+        mask[np.argsort(-scores, kind="stable")[:count]] = True
+    return mask
+
+
+def _bootstrap_lift_ci(y_true, proba, baseline_proba, n=2000, seed=42, alpha=0.05):
+    """Paired bootstrap confidence interval for candidate AUC minus recency AUC."""
+    rng = np.random.default_rng(seed)
+    indices = np.arange(len(y_true))
+    differences = []
+    for _ in range(n):
+        sample = rng.choice(indices, size=len(indices), replace=True)
+        labels = y_true[sample]
+        if len(np.unique(labels)) < 2:
+            continue
+        differences.append(
+            roc_auc_score(labels, proba[sample])
+            - roc_auc_score(labels, baseline_proba[sample])
+        )
+    if len(differences) < n // 2:
+        raise ValueError("Too few usable bootstrap samples to evaluate baseline lift")
+    return tuple(float(value) for value in np.quantile(
+        differences, [alpha / 2, 1 - alpha / 2]
+    ))
+
+
+def _evaluate_slices(model, X_val, y_val, tiers):
+    """Return per-tier recall@10% used by the non-blocking fairness gate."""
+    scores = model.predict(xgb.DMatrix(X_val, feature_names=FEATURE_COLUMNS))
+    labels = np.asarray(y_val).astype(int)
+    tier_values = pd.Series(tiers).fillna("Unknown").astype(str).reset_index(drop=True)
+    if len(tier_values) != len(labels):
+        raise ValueError("loyalty_tier and validation labels must have equal lengths")
+    output = {}
+    for tier in sorted(tier_values.unique()):
+        mask = tier_values.eq(tier).to_numpy()
+        tier_labels = labels[mask]
+        top = _top_fraction_mask(scores[mask])
+        positives = int(tier_labels.sum())
+        output[tier] = {
+            "n": int(mask.sum()),
+            "positives": positives,
+            "recall_top10": float(tier_labels[top].sum() / positives) if positives else 0.0,
+            "too_small": bool(mask.sum() < 50 or positives < 30 or mask.sum() - positives < 30),
+        }
+    return output
 
 
 def train(df: pd.DataFrame, seed: int = 42):
@@ -91,6 +149,121 @@ def train(df: pd.DataFrame, seed: int = 42):
     Return an xgboost.Booster (what xgb.train() gives you). If you used
     XGBClassifier, return clf.get_booster().
     """
-    raise NotImplementedError(
-        "TODO (Lab 4): implement train() in models/churn/churn_model.py from your "
-        "Lab 3 training code. See the contract at the top of the file.")
+    required = FEATURE_COLUMNS + [LABEL, "loyalty_tier"]
+    missing = [column for column in required if column not in df.columns]
+    if missing:
+        raise ValueError(f"Training data missing required columns: {missing}")
+
+    clean = df.dropna(subset=[LABEL]).copy()
+    if clean[LABEL].nunique() != 2:
+        raise ValueError("Training requires both churn_label classes")
+    X = clean[FEATURE_COLUMNS].fillna(-1).to_numpy(dtype=np.float32)
+    y = pd.to_numeric(clean[LABEL], errors="raise").to_numpy(dtype=np.int32)
+    tiers = clean["loyalty_tier"].fillna("Unknown").astype(str).reset_index(drop=True)
+
+    X_train, X_val, y_train, y_val, tiers_train, tiers_val = train_test_split(
+        X, y, tiers, test_size=0.30, random_state=seed, stratify=y
+    )
+    del tiers_train
+
+    positive_count = int((y_train == 1).sum())
+    negative_count = int((y_train == 0).sum())
+    if positive_count == 0:
+        raise ValueError("Training split has no positive churn examples")
+    scale_pos_weight = negative_count / positive_count
+
+    params = {
+        "objective": "binary:logistic",
+        "eval_metric": ["logloss", "auc"],
+        "max_depth": 6,
+        "eta": 0.1,
+        "min_child_weight": 5,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "scale_pos_weight": scale_pos_weight,
+        "seed": seed,
+        "verbosity": 1,
+    }
+    dtrain = xgb.DMatrix(X_train, label=y_train, feature_names=FEATURE_COLUMNS)
+    dval = xgb.DMatrix(X_val, label=y_val, feature_names=FEATURE_COLUMNS)
+    model = xgb.train(
+        params=params,
+        dtrain=dtrain,
+        num_boost_round=200,
+        evals=[(dtrain, "train"), (dval, "validation")],
+        early_stopping_rounds=20,
+        verbose_eval=25,
+    )
+
+    # Match Lab 3's baseline: same training rows, only days_since_last_purchase.
+    recency_index = FEATURE_COLUMNS.index(BASELINE_FEATURE)
+    baseline_train = xgb.DMatrix(
+        X_train[:, [recency_index]], label=y_train, feature_names=[BASELINE_FEATURE]
+    )
+    baseline_val = xgb.DMatrix(
+        X_val[:, [recency_index]], feature_names=[BASELINE_FEATURE]
+    )
+    baseline = xgb.train(
+        {
+            "objective": "binary:logistic",
+            "eval_metric": "auc",
+            "max_depth": 4,
+            "eta": 0.1,
+            "subsample": 0.9,
+            "colsample_bytree": 0.9,
+            "scale_pos_weight": scale_pos_weight,
+            "seed": 42,
+            "verbosity": 0,
+        },
+        baseline_train,
+        num_boost_round=200,
+    )
+
+    probabilities = model.predict(dval)
+    baseline_probabilities = baseline.predict(baseline_val)
+    top10 = _top_fraction_mask(probabilities)
+    precision = float(y_val[top10].mean()) if top10.any() else 0.0
+    recall = float(y_val[top10].sum() / y_val.sum()) if y_val.sum() else 0.0
+    auc = float(roc_auc_score(y_val, probabilities))
+    baseline_auc = float(roc_auc_score(y_val, baseline_probabilities))
+    ci_low, ci_high = _bootstrap_lift_ci(y_val, probabilities, baseline_probabilities)
+
+    metrics = {
+        "auc_roc": round(auc, 4),
+        "precision_top10": round(precision, 4),
+        "recall_top10": round(recall, 4),
+        "baseline_auc": round(baseline_auc, 4),
+        "baseline_auc_roc": round(baseline_auc, 4),
+        "auc_vs_baseline": round(auc - baseline_auc, 4),
+        "auc_lift_over_baseline": round(auc - baseline_auc, 4),
+        "lift_ci_low": round(ci_low, 4),
+        "lift_ci_high": round(ci_high, 4),
+        "auc_lift_ci_low": round(ci_low, 4),
+        "auc_lift_ci_high": round(ci_high, 4),
+        "positive_rate_val": round(float(y_val.mean()), 4),
+        "n_val_samples": int(len(y_val)),
+        "hyperparameters": {
+            "max_depth": 6,
+            "eta": 0.1,
+            "min_child_weight": 5,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8,
+            "num_boost_round": 200,
+            "early_stopping_rounds": 20,
+            "scale_pos_weight": scale_pos_weight,
+            "seed": seed,
+        },
+        "tier_metrics": _evaluate_slices(model, X_val, y_val, tiers_val),
+    }
+
+    failures = [
+        f"{name}={metrics[name]:.4f} < {threshold:.2f}"
+        for name, threshold in EVAL_THRESHOLDS.items()
+        if metrics[name] < threshold
+    ]
+    if ci_low <= 0:
+        failures.append(f"baseline lift 95% CI [{ci_low:.4f}, {ci_high:.4f}] includes zero")
+    if failures:
+        raise ValueError("Model failed Lab 3 evaluation gates: " + "; ".join(failures))
+
+    return model, metrics

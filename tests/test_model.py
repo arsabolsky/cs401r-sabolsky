@@ -22,6 +22,7 @@ Run locally (after the local training run in the lab handout):
 
 import json
 import os
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -423,4 +424,67 @@ class TestStoredMetricsGate:
             f"Validation churn rate {rate:.1%} outside expected range [15%, 30%]. "
             f"The reference dataset measures 22.0%. Check that your validation "
             f"split is stratified."
+        )
+
+
+class TestChampionRegression:
+    """Compare this pending candidate to the newest approved registry champion."""
+
+    def test_candidate_auc_is_within_two_points_of_champion(self, request):
+        if not os.environ.get("CODEBUILD_BUILD_ID"):
+            pytest.skip("Champion regression check runs in AWS CodeBuild")
+
+        import boto3
+
+        metrics_path = request.config.getoption("--eval-metrics-path") or os.environ.get(
+            "EVAL_METRICS_PATH", "/tmp/eval_metrics.json"
+        )
+        if not Path(metrics_path).exists():
+            pytest.skip(f"Evaluation metrics not found at {metrics_path}.")
+        with open(metrics_path, encoding="utf-8") as stream:
+            candidate_auc = float(json.load(stream)["auc_roc"])
+
+        region = os.environ.get("AWS_REGION", "us-east-1")
+        client = boto3.client("sagemaker", region_name=region)
+        group = "northstar-churn-models"
+        response = client.list_model_packages(
+            ModelPackageGroupName=group,
+            ModelApprovalStatus="Approved",
+            SortBy="CreationTime",
+            SortOrder="Descending",
+            MaxResults=1,
+        )
+        packages = response.get("ModelPackageSummaryList", [])
+        if not packages:
+            pytest.skip(f"No Approved package in {group}; approve a green run as champion first")
+
+        champion = client.describe_model_package(
+            ModelPackageName=packages[0]["ModelPackageArn"]
+        )
+        version = champion.get("ModelPackageVersion", packages[0].get("ModelPackageVersion"))
+        stats_uri = (
+            champion.get("ModelMetrics", {})
+            .get("ModelQuality", {})
+            .get("Statistics", {})
+            .get("S3Uri")
+        )
+        if not stats_uri:
+            pytest.fail("Approved champion has no ModelQuality statistics S3 URI")
+
+        from urllib.parse import urlparse
+
+        parsed = urlparse(stats_uri)
+        champion_metrics = json.loads(
+            boto3.client("s3", region_name=region)
+            .get_object(Bucket=parsed.netloc, Key=parsed.path.lstrip("/"))["Body"]
+            .read()
+        )
+        champion_auc = float(champion_metrics["auc_roc"])
+        warnings.warn(
+            f"champion v{version} auc={champion_auc:.4f}; candidate auc={candidate_auc:.4f}",
+            UserWarning,
+        )
+        assert candidate_auc >= champion_auc - 0.02, (
+            f"Candidate AUC {candidate_auc:.4f} regresses more than 0.02 from "
+            f"Approved champion v{version} AUC {champion_auc:.4f}"
         )

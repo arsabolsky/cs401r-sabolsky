@@ -40,6 +40,11 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from data.feature_engineering import (
+    FEATURE_COLUMNS as ENGINEERED_FEATURE_COLUMNS,
+    build_churn_feature_set,
+)
+
 # ── Configuration ─────────────────────────────────────────────────────────────
 
 RAW_PATH = os.environ.get("NORTHSTAR_RAW", "./data/northstar-raw-sample.csv")
@@ -286,20 +291,37 @@ class TestFeatures:
             "you anchored to FEATURE_CUTOFF and not to today()"
         )
 
-    # TODO: Add a test proving no feature used post-cutoff data.
-    # Careful: processed/ CONTAINS the holdout purchases (after FEATURE_CUTOFF),
-    # because the label is built from them, so "every customer's max
-    # purchase_date is <= FEATURE_CUTOFF" is false on correct data. Test the
-    # FEATURES instead: recompute the time-sensitive ones (recency, tenure, the
-    # 30/90/180-day frequencies) from processed rows with purchase_date <=
-    # FEATURE_CUTOFF -- your data/feature_engineering.py functions do this --
-    # and assert they equal what the pipeline wrote to features/.
+    def test_time_sensitive_features_match_pre_cutoff_history(self, processed_df, features_df):
+        """Recompute features from history only; holdout purchases cannot change them."""
+        expected = build_churn_feature_set(
+            customers=features_df[["customer_id"]],
+            transactions=processed_df,
+            snapshot_date=FEATURE_CUTOFF,
+        ).set_index("customer_id").sort_index()
+        actual = features_df.set_index("customer_id").sort_index()
+        time_sensitive = [
+            "days_since_last_purchase", "customer_tenure_days",
+            "purchase_frequency_30d", "purchase_frequency_90d",
+            "purchase_frequency_180d",
+        ]
+        pd.testing.assert_frame_equal(
+            actual[time_sensitive].astype("float64"),
+            expected[time_sensitive].astype("float64"),
+            check_dtype=False,
+            check_exact=True,
+        )
+        assert set(ENGINEERED_FEATURE_COLUMNS) <= set(features_df.columns)
 
-    # TODO: Add a freshness test. The pipeline should refuse to train on a
-    # feature set older than 48 hours. event_time is Fractional epoch seconds:
-    # the wall-clock time your Lab 2 feature job ran, NOT the cutoff T.
-    # Consequence: re-run the northstar-dev-feature-engineer Glue job (~90 s)
-    # before any session in which you will push, or this test fails the build.
+    def test_feature_event_time_is_fresh(self, features_df):
+        """Feature Store ingestion time is wall-clock epoch seconds, not cutoff T."""
+        assert "event_time" in features_df.columns, "features missing event_time"
+        event_time = pd.to_numeric(features_df["event_time"], errors="coerce")
+        assert event_time.notna().all(), "event_time must contain numeric epoch seconds"
+        age_seconds = pd.Timestamp.now(tz="UTC").timestamp() - event_time.max()
+        assert 0 <= age_seconds < 48 * 60 * 60, (
+            f"Latest feature event_time is {age_seconds / 3600:.1f} hours old; "
+            "re-run the Lab 2 feature job before training (maximum age is 48 hours)."
+        )
 
 
 # ── Cross-dataset consistency ─────────────────────────────────────────────────
