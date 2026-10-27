@@ -5,13 +5,17 @@ written; it had never actually existed, so the CodeBuild stage's core action --
 `aws sagemaker start-pipeline-execution --pipeline-name northstar-churn-pipeline`
 -- had nothing to start and the Lab 4 pipeline could not run end to end.
 
-Two steps:
+One step:
     Train     XGBoost framework estimator running models/churn/train_sagemaker.py
-    Register  RegisterModel, ModelApprovalStatus=PendingManualApproval
 
-The approval status is the point of the lab. This pipeline never approves its
-own model: promotion is the human gate in CodePipeline's ManualApproval stage,
-and a pipeline that registered as Approved would make that stage decorative.
+CodeBuild retrieves and tests the trained artifact after this pipeline succeeds.
+The model enters Model Registry only after every artifact, metric, and champion
+gate passes; this ordering ensures a deliberate test failure creates no package.
+
+The approval status is the point of the lab. After this training pipeline
+succeeds, CodeBuild runs the quality tests and creates a PendingManualApproval
+package. A human then reviews it in CodePipeline's ManualApproval stage; no
+automated path marks a candidate Approved.
 
 Upsert the pipeline (idempotent, safe to re-run):
     python models/churn/pipeline_definition.py \
@@ -34,13 +38,10 @@ import pathlib
 import boto3
 import sagemaker
 from sagemaker.inputs import TrainingInput
-from sagemaker.model_metrics import MetricsSource, ModelMetrics
 from sagemaker.workflow.functions import Join
-from sagemaker.workflow.execution_variables import ExecutionVariables
 from sagemaker.workflow.parameters import ParameterString
 from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.workflow.pipeline_context import PipelineSession
-from sagemaker.workflow.step_collections import RegisterModel
 from sagemaker.workflow.steps import TrainingStep
 from sagemaker.xgboost.estimator import XGBoost
 
@@ -83,8 +84,7 @@ def build_pipeline(role_arn: str, bucket: str, region: str = "us-east-1") -> Pip
         "InputDataS3Uri", default_value=f"s3://{bucket}/features/customers/")
     instance_type = ParameterString("TrainingInstanceType", default_value="ml.m5.large")
 
-    # See the ModelMetrics comment below for why this URI is built by hand and
-    # shared with the container rather than read off the training step.
+    # The training container and buildspec share this deterministic metrics URI.
     metrics_uri = Join(on="", values=[
         f"s3://{bucket}/artifacts/evaluations/", commit_sha, "/evaluation_metrics.json"])
 
@@ -131,49 +131,10 @@ def build_pipeline(role_arn: str, bucket: str, region: str = "us-east-1") -> Pip
         }),
     )
 
-    # ModelMetrics points at the metrics object the training job uploaded, so
-    # the Model Registry entry carries its own evidence. Without this the
-    # registry holds an artifact with no record of why it was promotable --
-    # which is exactly how the 2026-08-01 slice numbers were lost.
-    #
-    # It has to be this deterministic URI, derived the same way on both sides,
-    # rather than anything read off the training step. Two things rule the
-    # obvious alternatives out:
-    #   * step.properties.* are lazy pipeline references, not strings. You
-    #     cannot .replace() a path out of them at definition time.
-    #   * /opt/ml/output/data is uploaded as output.tar.gz, so there is no bare
-    #     evaluation_metrics.json next to the model artifact to point at.
-    # So train_sagemaker.py PUTs the metrics to METRICS_S3_URI itself, and
-    # Join() builds the identical URI here from the same parameter.
-    model_metrics = ModelMetrics(
-        model_statistics=MetricsSource(s3_uri=metrics_uri,
-                                       content_type="application/json")
-    )
-
-    register_step = RegisterModel(
-        name="RegisterChurnModel",
-        estimator=estimator,
-        model_data=train_step.properties.ModelArtifacts.S3ModelArtifacts,
-        content_types=["text/csv"],
-        response_types=["text/csv"],
-        inference_instances=["ml.m5.large", "ml.t2.medium"],
-        transform_instances=["ml.m5.large"],
-        model_package_group_name=MODEL_PACKAGE_GROUP,
-        approval_status="PendingManualApproval",
-        model_metrics=model_metrics,
-        customer_metadata_properties={
-            "TrainingDataS3Uri": input_data,
-            "FeatureEventTimeMax": data_timestamp,
-            "CodeCommitSha": commit_sha,
-            "PipelineStartTime": ExecutionVariables.START_DATETIME,
-            "EvaluationMetricsS3Uri": metrics_uri,
-        },
-    )
-
     return Pipeline(
         name=PIPELINE_NAME,
         parameters=[commit_sha, data_timestamp, input_data, instance_type],
-        steps=[train_step, register_step],
+        steps=[train_step],
         sagemaker_session=session,
     )
 
@@ -181,10 +142,8 @@ def build_pipeline(role_arn: str, bucket: str, region: str = "us-east-1") -> Pip
 # Create the model package group if it does not exist. Kept out of
 # build_pipeline() so that building a definition stays free of side effects.
 #
-# Until 2026-10-01 this function sat BELOW the `if __name__ == "__main__"`
-# block and nothing called it, so a fresh account's first RegisterModel step
-# depended on the group already existing from Lab 3. It is now called on
-# --upsert. CodeBuild's role already grants CreateModelPackageGroup for this.
+# CodeBuild's post-gate registration call needs the group to exist first, so
+# --upsert ensures it. CodeBuild's role grants CreateModelPackageGroup here.
 def ensure_model_package_group(region: str = "us-east-1") -> None:
     sm = boto3.client("sagemaker", region_name=region)
     try:

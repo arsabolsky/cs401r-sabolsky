@@ -137,17 +137,13 @@ Resources:
                 Resource: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:pipeline/${SageMakerPipelineName}*"
               - Effect: Allow
                 Action:
-                  # RegisterModel creates a model package in this group, and the
-                  # group itself must exist before the first registration.
+                  # CodeBuild creates the package only after its test and
+                  # champion gates pass; ensure the group exists beforehand.
                   - sagemaker:CreateModelPackageGroup
                   - sagemaker:DescribeModelPackageGroup
                   - sagemaker:CreateModelPackage
                   - sagemaker:DescribeModelPackage
                   - sagemaker:ListModelPackages
-                  # buildspec post_build rejects a package registered by a build
-                  # that then failed; also lets you write lineage metadata
-                  # (CustomerMetadataProperties) from CI.
-                  - sagemaker:UpdateModelPackage
                 Resource: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:model-package*/*"
               - Effect: Allow
                 Action:

@@ -10,10 +10,10 @@ version: 0.2
 #   install   → Set up Python, install dependencies
 #   install    → pip install -r requirements.txt (requirements.txt ships in the kit)
 #   pre_build  → data and feature tests; a failure stops the build here
-#   build      → upsert + run the SageMaker Pipeline (train on spot, register),
-#                then the model gate (test_model.py, test_fairness.py)
-#   post_build → reject the package if the build failed after registering it;
-#                publish NorthStar/CI BuildSucceeded
+#   build      → train on spot, evaluate and test the resulting model, then
+#                register as PendingManualApproval only after every gate passes
+#   post_build → publish NorthStar/CI BuildSucceeded; CodeBuild's native
+#                FailedBuilds metric drives the failure alarm
 #
 # Required CodeBuild environment variables (set in the CodePipeline stack):
 #   PROJECT             northstar
@@ -194,13 +194,6 @@ phases:
 
           if [ "$STATUS" = "Succeeded" ]; then
             echo "Pipeline succeeded"
-            # Record the package this run registered. post_build rejects it
-            # if anything after this point fails the build (see post_build).
-            aws sagemaker list-pipeline-execution-steps \
-              --pipeline-execution-arn $EXECUTION_ARN \
-              --query "PipelineExecutionSteps[?starts_with(StepName,'RegisterChurnModel')].Metadata.RegisterModel.Arn" \
-              --output text > /tmp/model_package_arn.txt
-            echo "Registered: $(cat /tmp/model_package_arn.txt)"
             break
           elif [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Stopped" ]; then
             echo "Pipeline $STATUS - check SageMaker Studio for details"
@@ -234,49 +227,12 @@ phases:
       - export EVAL_METRICS_PATH=/tmp/eval_metrics.json
       - cat /tmp/eval_metrics.json
 
-      # Attach run lineage directly to the newly registered Model Registry
-      # package. Model metrics are only known after the pipeline completes.
-      - |
-        python - <<'PY'
-        import json
-        import os
-        import boto3
-
-        with open("/tmp/eval_metrics.json", encoding="utf-8") as stream:
-            metrics = json.load(stream)
-        with open("/tmp/model_package_arn.txt", encoding="utf-8") as stream:
-            package_arn = stream.read().strip()
-        with open("/tmp/feature_timestamp.txt", encoding="utf-8") as stream:
-            feature_timestamp = stream.read().strip()
-
-        metadata = {
-            "TrainingDataS3Uri": f"s3://{os.environ['DATA_BUCKET']}/features/customers/",
-            "FeatureEventTimeMax": feature_timestamp,
-            "CodeCommitSha": os.environ["CODEBUILD_RESOLVED_SOURCE_VERSION"],
-            "EvaluationMetricsS3Uri": (
-                f"s3://{os.environ['DATA_BUCKET']}/artifacts/evaluations/"
-                f"{os.environ['COMMIT_SHA']}/evaluation_metrics.json"
-            ),
-            "AucRoc": str(metrics["auc_roc"]),
-            "PrecisionTop10": str(metrics["precision_top10"]),
-            "RecallTop10": str(metrics["recall_top10"]),
-            "LiftCiLow": str(metrics["lift_ci_low"]),
-            "LiftCiHigh": str(metrics["lift_ci_high"]),
-        }
-        boto3.client("sagemaker", region_name=os.environ["AWS_REGION"]).update_model_package(
-            ModelPackageArn=package_arn,
-            CustomerMetadataProperties=metadata,
-        )
-        print(f"Attached training lineage and metrics to {package_arn}")
-        print(json.dumps(metadata, indent=2, sort_keys=True))
-        PY
-
       # Pull the actual trained artifact too. tests/test_model.py is not only a
       # metrics gate -- TestModelLoading asserts the booster loads and that
       # model_metadata.json travels with it. Handing it metrics but no model
       # made those tests fail in CI while passing locally. Downloading the real
-      # model.tar.gz means CI checks the artifact that was just registered,
-      # which is the thing that will actually be deployed.
+      # model.tar.gz means CI checks the artifact that will be registered only
+      # after the quality gates pass.
       - |
         EXECUTION_ARN=$(cat /tmp/pipeline_execution_arn.txt)
         TRAIN_JOB=$(aws sagemaker list-pipeline-execution-steps \
@@ -284,6 +240,7 @@ phases:
           --query "PipelineExecutionSteps[?StepName=='TrainChurnModel'].Metadata.TrainingJob.Arn" \
           --output text | awk -F/ '{print $NF}')
         echo "Training job: $TRAIN_JOB"
+        echo "$TRAIN_JOB" > /tmp/training_job_name.txt
         MODEL_URI=$(aws sagemaker describe-training-job --training-job-name "$TRAIN_JOB" \
           --query "ModelArtifacts.S3ModelArtifacts" --output text)
         echo "Model artifact: $MODEL_URI"
@@ -309,6 +266,22 @@ phases:
           --model-path /tmp/model/xgboost-model \
           --junitxml=reports/model_gate.xml
 
+      # This is intentionally the first command that can create a Model
+      # Registry package. CodeBuild stops on a failed test above, so the
+      # deliberate-failure check reaches no registration at all.
+      - |
+        python models/churn/register_model.py \
+          --training-job-name "$(cat /tmp/training_job_name.txt)" \
+          --model-package-group northstar-churn-models \
+          --bucket "$DATA_BUCKET" \
+          --commit-sha "$CODEBUILD_RESOLVED_SOURCE_VERSION" \
+          --feature-event-time-max "$(cat /tmp/feature_timestamp.txt)" \
+          --metrics-path "$EVAL_METRICS_PATH" \
+          --region "$AWS_REGION" > /tmp/register_model.log
+        cat /tmp/register_model.log
+        tail -n 1 /tmp/register_model.log > /tmp/model_package_arn.txt
+        echo "Registered after all tests: $(cat /tmp/model_package_arn.txt)"
+
   post_build:
     commands:
       - echo "=== POST-BUILD PHASE ==="
@@ -318,24 +291,6 @@ phases:
       # phase boundaries, which is why every phase above re-derives ACCOUNT_ID
       # and DATA_BUCKET rather than trusting the previous one.
       - export COMMIT_SHA=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-8)
-
-      # ── Reject a package registered by a build that then failed ───────
-      # The SageMaker Pipeline registers the model (PendingManualApproval)
-      # BEFORE tests/test_model.py runs above. A model that fails a gate inside
-      # training is never registered -- the training step fails first -- but
-      # one that fails a CodeBuild-only test (model loading, monotonicity,
-      # champion regression) already sits in the registry. Without this step
-      # a red build leaves an approvable package behind (seen 2026-10-19, v7).
-      # post_build does run when the BUILD phase fails, so this is reached;
-      # a PRE_BUILD failure skips it, but then nothing was registered.
-      - |
-        if [ "$CODEBUILD_BUILD_SUCCEEDING" = "0" ] && [ -s /tmp/model_package_arn.txt ]; then
-          PKG=$(cat /tmp/model_package_arn.txt)
-          aws sagemaker update-model-package --model-package-arn "$PKG" \
-            --model-approval-status Rejected \
-            --approval-description "Auto-rejected: CodeBuild build ${CODEBUILD_BUILD_ID} (commit ${COMMIT_SHA}) failed after registration."
-          echo "Rejected $PKG"
-        fi
 
       # ── Publish build outcome to CloudWatch ───────────────────────────
       # READ THIS BEFORE RELYING ON THIS METRIC.
