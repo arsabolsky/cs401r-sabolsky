@@ -157,11 +157,11 @@ class TestRecencyFeatures:
         empty_txns = pd.DataFrame(columns=["customer_id", "purchase_date", "order_value"])
         customer_ids = pd.DataFrame({"customer_id": ["CUST-NODATA"]})
 
-        # TODO: Your function should handle customers with no transactions
-        # Expected behavior: return days_since_last_purchase = 999 (or configurable sentinel)
-        # features = compute_recency_features(empty_txns, SNAPSHOT_DATE, customer_ids)
-        # assert features.iloc[0]["days_since_last_purchase"] == 999
-        pass
+        features = compute_recency_features(empty_txns, SNAPSHOT_DATE, customer_ids)
+
+        assert len(features) == 1
+        assert features.iloc[0]["customer_id"] == "CUST-NODATA"
+        assert features.iloc[0]["days_since_last_purchase"] == 999
 
 
 # ── Frequency Feature Tests ────────────────────────────────────────────────────
@@ -194,6 +194,20 @@ class TestFrequencyFeatures:
         assert len(violations) == 0, (
             f"{len(violations)} customers have 180d_freq < 90d_freq (impossible)"
         )
+
+    def test_frequency_30d_uses_open_window_boundary(self):
+        """A transaction exactly 30 days before T is outside the Lab 2 window."""
+        transactions = pd.DataFrame({
+            "customer_id": ["CUST-BOUNDARY", "CUST-BOUNDARY"],
+            "purchase_date": [
+                (SNAPSHOT_DATE - timedelta(days=30)).isoformat(),
+                (SNAPSHOT_DATE - timedelta(days=29)).isoformat(),
+            ],
+        })
+
+        features = compute_frequency_features(transactions, SNAPSHOT_DATE)
+
+        assert features.iloc[0]["purchase_frequency_30d"] == 1
 
 
 # ── Monetary Feature Tests ─────────────────────────────────────────────────────
@@ -298,7 +312,9 @@ class TestFullFeatureSet:
         active_customer_ids = sample_transactions["customer_id"].unique()
         active_features = features[features["customer_id"].isin(active_customer_ids)]
         null_counts = active_features[self.REQUIRED_FEATURES].isna().sum()
-        # TODO: Assert null_counts.sum() == 0 (implement after deciding on null strategy)
+        assert null_counts.sum() == 0, (
+            f"Known customers have null feature values: {null_counts[null_counts > 0].to_dict()}"
+        )
 
     def test_output_has_customer_id_column(self, sample_customers, sample_transactions):
         features = build_churn_feature_set(
@@ -307,3 +323,54 @@ class TestFullFeatureSet:
             snapshot_date=SNAPSHOT_DATE,
         )
         assert "customer_id" in features.columns, "Output must include customer_id for joining"
+
+    def test_single_transaction_customer_features(self, sample_customers):
+        """One order should produce finite features and preserve the order's values."""
+        transactions = pd.DataFrame([{
+            "transaction_id": "TXN-SINGLE",
+            "customer_id": "CUST-SINGLE",
+            "purchase_date": (SNAPSHOT_DATE - timedelta(days=1)).isoformat(),
+            "order_value": 120.0,
+            "num_items": 3,
+            "channel": "online",
+            "product_category": "Home",
+        }])
+        customer = pd.DataFrame({
+            "customer_id": ["CUST-SINGLE"],
+            "loyalty_tier": ["Bronze"],
+            "churn_label": [0],
+        })
+
+        features = build_churn_feature_set(customer, transactions, SNAPSHOT_DATE).iloc[0]
+
+        assert features["days_since_last_purchase"] == 1
+        assert features["purchase_frequency_30d"] == 1
+        assert features["purchase_frequency_90d"] == 1
+        assert features["purchase_frequency_180d"] == 1
+        assert features["avg_order_value"] == pytest.approx(120.0)
+        assert features["avg_basket_size_6m"] == pytest.approx(3.0)
+        assert features["category_diversity_score"] == pytest.approx(1 / 8)
+        assert features["online_to_store_ratio"] == pytest.approx(1.0)
+        assert np.isfinite(features[self.REQUIRED_FEATURES].astype(float)).to_numpy().all()
+
+    def test_customer_without_transactions_has_zero_aggregates(self, sample_customers, sample_transactions):
+        """A rostered customer without history remains present with safe defaults."""
+        customers = pd.concat([
+            sample_customers,
+            pd.DataFrame({
+                "customer_id": ["CUST-NODATA"],
+                "loyalty_tier": ["Bronze"],
+                "churn_label": [1],
+            }),
+        ], ignore_index=True)
+
+        features = build_churn_feature_set(customers, sample_transactions, SNAPSHOT_DATE)
+        missing = features.loc[features["customer_id"] == "CUST-NODATA"].iloc[0]
+
+        assert missing["days_since_last_purchase"] == 999
+        assert missing["purchase_frequency_30d"] == 0
+        assert missing["purchase_frequency_90d"] == 0
+        assert missing["purchase_frequency_180d"] == 0
+        assert missing["avg_order_value"] == 0
+        assert missing["category_diversity_score"] == 0
+        assert missing["online_to_store_ratio"] == 0
