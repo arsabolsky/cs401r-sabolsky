@@ -1,0 +1,35 @@
+Completed 8.0 MiB/13.0 MiB (2.5 MiB/s) with 1 file(s) remainingCompleted 13.0 MiB/13.0 MiB (1.8 MiB/s) with 1 file(s) remainingupload: ./northstar-raw-sample.csv to s3://northstar-dev-data-573693339848/raw/customers/northstar-raw-sample.csv
+RUNNING
+===== Lab 2 Glue job results used for Lab 4 validation =====
+-- transform
+{
+    "RunId": "jr_2ac5bc723c6311701637e786692b2776bb2c36e26b51083f6cab836f4150d4db",
+    "State": "SUCCEEDED",
+    "Started": "2026-10-26T18:54:13.996000-06:00",
+    "Completed": "2026-10-26T18:56:21.008000-06:00",
+    "ExecutionTimeSeconds": 102
+}
+-- feature engineer
+{
+    "RunId": "jr_c4a34032c5fea6a1ad15de8db57729ad66c4a3e51a02622bc955c5309c385755",
+    "State": "SUCCEEDED",
+    "Started": "2026-10-26T18:56:37.469000-06:00",
+    "Completed": "2026-10-26T18:59:54.084000-06:00",
+    "ExecutionTimeSeconds": 192
+}
+-- processed objects
+-------------------------------------------------------------------------------------------------------
+|                                            ListObjectsV2                                            |
++-------------------------------------------------------------------------------------------+---------+
+|  processed/customers/part-00000-c1d4b316-9948-4b40-af9b-97ebb2d2839d-c000.snappy.parquet  |  964962 |
+|  processed/customers/part-00001-c1d4b316-9948-4b40-af9b-97ebb2d2839d-c000.snappy.parquet  |  965331 |
+|  processed/customers/part-00002-c1d4b316-9948-4b40-af9b-97ebb2d2839d-c000.snappy.parquet  |  962087 |
+|  processed/customers/part-00003-c1d4b316-9948-4b40-af9b-97ebb2d2839d-c000.snappy.parquet  |  964133 |
++-------------------------------------------------------------------------------------------+---------+
+-- customer features
+------------------------------------------------------------------------------------------------------
+|                                            ListObjectsV2                                           |
++------------------------------------------------------------------------------------------+---------+
+|  features/customers/part-00000-ad8093f5-be9e-41c5-af72-1f7b3d390297-c000.snappy.parquet  |  163878 |
+|  features/customers/part-00001-ad8093f5-be9e-41c5-af72-1f7b3d390297-c000.snappy.parquet  |  155338 |
++------------------------------------------------------------------------------------------+---------+

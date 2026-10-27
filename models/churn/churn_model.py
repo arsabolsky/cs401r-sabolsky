@@ -177,7 +177,9 @@ def train(df: pd.DataFrame, seed: int = 42):
     params = {
         "objective": "binary:logistic",
         "eval_metric": ["logloss", "auc"],
-        "max_depth": 6,
+        # Lab 3's selected configuration (depth 4, eta 0.1) was the strongest
+        # of the three tracked runs and is the model being carried into Lab 4.
+        "max_depth": 4,
         "eta": 0.1,
         "min_child_weight": 5,
         "subsample": 0.8,
@@ -245,7 +247,7 @@ def train(df: pd.DataFrame, seed: int = 42):
         "positive_rate_val": round(float(y_val.mean()), 4),
         "n_val_samples": int(len(y_val)),
         "hyperparameters": {
-            "max_depth": 6,
+            "max_depth": 4,
             "eta": 0.1,
             "min_child_weight": 5,
             "subsample": 0.8,

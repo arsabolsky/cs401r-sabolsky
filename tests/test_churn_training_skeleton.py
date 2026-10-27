@@ -236,7 +236,8 @@ class TrackingAndRegistryTests(unittest.TestCase):
             mlflow_arn="arn:aws:sagemaker:us-east-1:573693339848:mlflow-app/app-test",
             mlflow_experiment="northstar-churn", run_name="depth-test",
             max_depth=4, eta=0.05, num_round=100, min_child_weight=2,
-            subsample=0.8, colsample_bytree=0.9,
+            subsample=0.8, colsample_bytree=0.9, seed=42,
+            early_stopping_rounds=20, verbose_eval=25,
         )
         with mock.patch.dict("sys.modules", {"mlflow": FakeMlflow()}):
             training.track_run(args, {"auc_roc": 0.8, "slice_name": "Gold"}, 3.5)
@@ -277,6 +278,7 @@ class TrackingAndRegistryTests(unittest.TestCase):
                 model_dir=temp_dir, register_model=False,
                 artifacts_bucket="northstar-dev-data-573693339848",
                 max_depth=4, eta=0.1, num_round=20,
+                seed=42, early_stopping_rounds=20, verbose_eval=25,
             )
             training.save_and_register_model(model, {"auc_roc": 0.8}, args)
             # Local artifacts are saved even when exploratory run is not registered.
