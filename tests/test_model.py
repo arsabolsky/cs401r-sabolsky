@@ -84,6 +84,15 @@ def loaded_model(model_path):
 
 
 @pytest.fixture(scope="module")
+def eval_metrics():
+    metrics_path = os.environ.get("EVAL_METRICS_PATH", "/tmp/eval_metrics.json")
+    if not Path(metrics_path).exists():
+        pytest.skip(f"Evaluation metrics not found at {metrics_path}.")
+    with open(metrics_path, encoding="utf-8") as stream:
+        return json.load(stream)
+
+
+@pytest.fixture(scope="module")
 def model_metadata(model_path):
     """Load model metadata if it exists alongside the model."""
     meta_path = Path(model_path).parent / "model_metadata.json"
@@ -377,14 +386,6 @@ class TestStoredMetricsGate:
         "recall_top10": 0.25,
     }
 
-    @pytest.fixture(scope="class")
-    def eval_metrics(self):
-        metrics_path = os.environ.get("EVAL_METRICS_PATH", "/tmp/eval_metrics.json")
-        if not Path(metrics_path).exists():
-            pytest.skip(f"Evaluation metrics not found at {metrics_path}.")
-        with open(metrics_path) as f:
-            return json.load(f)
-
     def test_precision_top10_meets_threshold(self, eval_metrics):
         p = eval_metrics.get("precision_top10", 0)
         assert p >= self.REQUIRED_METRICS["precision_top10"], (
@@ -464,24 +465,28 @@ class TestChampionRegression:
             ModelPackageName=packages[0]["ModelPackageArn"]
         )
         version = champion.get("ModelPackageVersion", packages[0].get("ModelPackageVersion"))
+        metadata = champion.get("CustomerMetadataProperties", {})
+        champion_auc_value = metadata.get("AucRoc", metadata.get("auc_roc"))
         stats_uri = (
             champion.get("ModelMetrics", {})
             .get("ModelQuality", {})
             .get("Statistics", {})
             .get("S3Uri")
         )
-        if not stats_uri:
-            pytest.fail("Approved champion has no ModelQuality statistics S3 URI")
+        if champion_auc_value is not None:
+            champion_auc = float(champion_auc_value)
+        else:
+            if not stats_uri:
+                pytest.fail("Approved champion has no AUC metadata or ModelQuality statistics")
+            from urllib.parse import urlparse
 
-        from urllib.parse import urlparse
-
-        parsed = urlparse(stats_uri)
-        champion_metrics = json.loads(
-            boto3.client("s3", region_name=region)
-            .get_object(Bucket=parsed.netloc, Key=parsed.path.lstrip("/"))["Body"]
-            .read()
-        )
-        champion_auc = float(champion_metrics["auc_roc"])
+            parsed = urlparse(stats_uri)
+            champion_metrics = json.loads(
+                boto3.client("s3", region_name=region)
+                .get_object(Bucket=parsed.netloc, Key=parsed.path.lstrip("/"))["Body"]
+                .read()
+            )
+            champion_auc = float(champion_metrics["auc_roc"])
         warnings.warn(
             f"champion v{version} auc={champion_auc:.4f}; candidate auc={candidate_auc:.4f}",
             UserWarning,

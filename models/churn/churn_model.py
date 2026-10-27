@@ -159,6 +159,8 @@ def train(df: pd.DataFrame, seed: int = 42):
         raise ValueError("Training requires both churn_label classes")
     X = clean[FEATURE_COLUMNS].fillna(-1).to_numpy(dtype=np.float32)
     y = pd.to_numeric(clean[LABEL], errors="raise").to_numpy(dtype=np.int32)
+    if set(np.unique(y)) != {0, 1}:
+        raise ValueError("churn_label must contain only binary values 0 and 1")
     tiers = clean["loyalty_tier"].fillna("Unknown").astype(str).reset_index(drop=True)
 
     X_train, X_val, y_train, y_val, tiers_train, tiers_val = train_test_split(
