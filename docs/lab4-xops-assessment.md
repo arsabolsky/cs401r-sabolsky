@@ -6,7 +6,7 @@ CodePipeline **Source** receives GitHub commits. In `buildspec.yml`, **Test** do
 
 ## Champion-Challenger
 
-A candidate must meet the precision, recall, and baseline-lift gates above and satisfy `candidate AUC ≥ newest Approved champion AUC − 0.02`. The first green package becomes the champion after approval; later candidates failing a gate are not promoted. Registration runs only after CodeBuild has passed artifact, metric, fairness, and champion checks, so a failed test leaves no package to approve.
+A candidate must meet the precision, recall, and baseline-lift gates above and satisfy `candidate AUC ≥ newest Approved champion AUC − 0.02`. The first green package becomes the champion after approval; later candidates failing a gate are not promoted. A candidate failing a CodeBuild test after registration is changed to Rejected.
 
 ## Retraining Triggers
 
@@ -23,7 +23,7 @@ A candidate must meet the precision, recall, and baseline-lift gates above and s
 
 ## MLOps Maturity
 
-**Current level: 2.** `models/churn/churn_model.py` carries forward Lab 3 training and baseline gates. `models/churn/pipeline_definition.py` trains on spot; `buildspec.yml` checks artifacts, metrics, champion regression, and fairness before `models/churn/register_model.py` creates a `PendingManualApproval` package with lineage. The real-data run reproduced Lab 3 metrics: AUC 0.7821, precision 0.7167, and recall 0.3258. `docs/lab4-mlflow-runs.txt` records six runs across three configurations.
+**Current level: 2.** `models/churn/churn_model.py` carries forward Lab 3 training and baseline gates. `models/churn/pipeline_definition.py` trains on spot and registers as `PendingManualApproval`. `buildspec.yml` checks artifacts, champion regression, fairness, and lineage. The real-data run reproduced Lab 3 metrics: AUC 0.7821, precision 0.7167, and recall 0.3258. `docs/lab4-mlflow-runs.txt` records six runs across three configurations.
 
 **Gap to Level 3:** there is no production endpoint or post-deployment monitor. Promotion remains manual and the retraining triggers are not deployed.
 
