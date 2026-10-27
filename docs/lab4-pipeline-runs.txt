@@ -12,7 +12,7 @@ Action: GitHubSource
 AWS failure summary: Connection northstar-github is not available
 Build stage: not started
 
-Interpretation: this was the initial stack-created execution while the GitHub CodeConnections resource was still PENDING. It is an authorization/setup failure, not a test-failure demonstration and not evidence that test/build/evaluation/registration gates work. Rerun after completing GitHub authorization and append all later pipeline executions here.
+Interpretation: this was the initial stack-created execution while the GitHub CodeConnections resource was still PENDING. It is an authorization/setup failure, not a test-failure demonstration and not evidence that test/build/evaluation/registration gates work. The connection was later authorized and reached AVAILABLE.
 Lab 4 CI training-permission failure
 
 AWS account: 573693339848 (northstar), region: us-east-1
@@ -31,3 +31,12 @@ Failure: northstar-dev-MLEngineer lacked sagemaker:AddTags on the training-job r
 Model Registry remained at versions 1 and 2; no candidate package was created.
 This is an infrastructure-permission failure, not the deliberate PRE_BUILD test demo.
 Full build log: docs/lab4-build-addtags-permission-failure.log
+
+Execution 23d1a254-482b-4ca1-ae84-2d15777f6155 — SageMaker spot quota
+Source commit: d6f7ccc60a86f5c216f26c482866d0cf1955110e
+Status: Failed in BUILD after source/data tests passed; SageMaker did not start a training job.
+SageMaker execution: arn:aws:sagemaker:us-east-1:573693339848:pipeline/northstar-churn-pipeline/execution/yr6bbywy65xh
+Root cause: the personal account's applied Service Quota for `ml.m5.large` spot training is 0, while the pipeline requests one instance. No model package was registered; the newest package version remains 2.
+Follow-up: AWS Service Quotas rejected a desired value of 1 because its API requires a value above the default quota of 4. A request for 5 was submitted to the personal account and is PENDING (request ID `db113c2eb21848288d2244b4a6381c9ax3aGWk5f`). See `docs/lab4-quota-status.txt`. Do not rerun the pipeline until the applied quota allows the assigned instance.
+
+Alarm and SNS state checked 2026-10-27: `northstar-ci-build-failure` is ALARM and targets `northstar-model-approvals`; the topic currently has no subscriptions. This alarm reflects the infrastructure/quota failures above, not the required deliberate PRE_BUILD test failure. Add and confirm the student's email subscription before capturing the final alarm email evidence.

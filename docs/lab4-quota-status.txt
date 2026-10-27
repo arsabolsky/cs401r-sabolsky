@@ -1,0 +1,17 @@
+Lab 4 SageMaker spot quota status
+
+Checked: 2026-10-27
+AWS account: 573693339848 (personal `northstar` profile)
+Region: us-east-1
+Quota: `ml.m5.large for spot training job usage` (L-29688C85)
+
+Applied account quota: 0
+AWS default quota: 4
+Request for 1: rejected by AWS because the requested value must be greater than the default value of 4.
+Request submitted: 5 (smallest value accepted by the request API)
+Request ID: db113c2eb21848288d2244b4a6381c9ax3aGWk5f
+Status at capture: PENDING
+
+The training pipeline uses one `ml.m5.large` spot instance. Wait for AWS to approve the
+quota request and confirm the applied account quota before retrying the pipeline. The
+request changes the account limit; it does not launch or reserve five instances.
