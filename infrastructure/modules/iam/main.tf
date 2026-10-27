@@ -57,6 +57,15 @@ resource "aws_iam_policy" "this" {
         "Resource" : "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:model-package/${var.project}-churn-models/*"
       },
       {
+        "Sid" : "TagPipelineTrainingAndModels",
+        "Effect" : "Allow",
+        "Action" : "sagemaker:AddTags",
+        "Resource" : [
+          "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:training-job/*",
+          "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:model-package/${var.project}-churn-models/*"
+        ]
+      },
+      {
         "Sid" : "StudioSelfService",
         "Effect" : "Allow",
         "Action" : [

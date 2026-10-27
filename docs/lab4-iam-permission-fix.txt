@@ -9,3 +9,9 @@ Targeted Terraform result: 0 added, 1 changed, 0 destroyed.
 IAM policy simulation: sagemaker:CreateModelPackage allowed; iam:PassRole to SageMaker allowed.
 Full Terraform plan still proposes only the previously omitted unused SageMaker Studio domain and user profile; neither was applied.
 Build failure log: docs/lab4-build-permission-failure.log
+
+The next CI attempt exposed SageMaker's dependent `sagemaker:AddTags` permission on
+training jobs. Terraform now grants it only on this account's training-job resources
+and the `northstar-churn-models` package ARNs. The targeted plan again changed one
+policy only (0 added, 1 changed, 0 destroyed); IAM simulation allowed AddTags on a
+training job and CreateModelPackage on the churn package ARN.

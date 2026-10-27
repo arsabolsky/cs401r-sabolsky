@@ -23,3 +23,11 @@ Result: PRE_BUILD passed; BUILD failed in the TrainChurnModel step before a trai
 Root cause: northstar-dev-MLEngineer lacked iam:PassRole for its own role when SageMaker attempted CreateTrainingJob.
 No model package was registered: package versions 1 and 2 remained the newest.
 The build-failure alarm entered ALARM. This is an infrastructure-permission failure, not the required deliberate-test-failure demonstration.
+
+Execution 74b1292a-f822-4d5d-abd3-9c18dbadf57f — CodeBuild permission retry
+Status: Failed in BUILD while waiting for SageMaker Pipeline execution.
+SageMaker execution: 652ky9zsj0ac; TrainChurnModel failed before creating a training job.
+Failure: northstar-dev-MLEngineer lacked sagemaker:AddTags on the training-job resource.
+Model Registry remained at versions 1 and 2; no candidate package was created.
+This is an infrastructure-permission failure, not the deliberate PRE_BUILD test demo.
+Full build log: docs/lab4-build-addtags-permission-failure.log
