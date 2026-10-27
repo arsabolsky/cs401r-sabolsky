@@ -108,7 +108,9 @@ def synthetic_churn_batch():
         "days_since_last_purchase":     np.random.randint(90, 200, n),
         "purchase_frequency_90d":       np.random.randint(0, 2, n),
         "purchase_frequency_180d":      np.random.randint(0, 3, n),
-        "avg_basket_size_6m":           np.random.uniform(20, 60, n),
+        # This feature is items per order, not order dollars. Keep values in
+        # the same small-count range as the Lab 2 feature definition.
+        "avg_basket_size_6m":           np.random.uniform(2.0, 3.0, n),
         "total_spend_90d":              np.random.uniform(0, 50, n),
         "category_diversity_score":     np.random.uniform(0, 0.3, n),
         "online_to_store_ratio":        np.random.uniform(0, 0.2, n),
@@ -124,7 +126,7 @@ def synthetic_churn_batch():
         "days_since_last_purchase":     np.random.randint(1, 15, n),
         "purchase_frequency_90d":       np.random.randint(6, 20, n),
         "purchase_frequency_180d":      np.random.randint(10, 35, n),
-        "avg_basket_size_6m":           np.random.uniform(120, 400, n),
+        "avg_basket_size_6m":           np.random.uniform(4.0, 6.0, n),
         "total_spend_90d":              np.random.uniform(400, 2000, n),
         "category_diversity_score":     np.random.uniform(0.5, 1.0, n),
         "online_to_store_ratio":        np.random.uniform(0.4, 0.8, n),
@@ -309,7 +311,7 @@ class TestModelRobustness:
                 "days_since_last_purchase": days,
                 "purchase_frequency_90d": 3,
                 "purchase_frequency_180d": 6,
-                "avg_basket_size_6m": 85.0,
+                "avg_basket_size_6m": 3.5,
                 "total_spend_90d": 200.0,
                 "category_diversity_score": 0.5,
                 "online_to_store_ratio": 0.4,
@@ -317,7 +319,7 @@ class TestModelRobustness:
                 "total_lifetime_value": 2400.0,
                 "customer_tenure_days": 1000,
                 "purchase_frequency_30d": 2,
-            }])
+            }], columns=FEATURE_COLUMNS)
             dmatrix = xgb.DMatrix(features, feature_names=FEATURE_COLUMNS)
             scores.append(float(loaded_model.predict(dmatrix)[0]))
 
@@ -339,12 +341,12 @@ class TestModelRobustness:
         """Same input must produce identical output on repeated calls (deterministic)."""
         features = pd.DataFrame([{
             "days_since_last_purchase": 45, "purchase_frequency_90d": 3,
-            "purchase_frequency_180d": 6, "avg_basket_size_6m": 85.0,
+            "purchase_frequency_180d": 6, "avg_basket_size_6m": 3.5,
             "total_spend_90d": 200.0, "category_diversity_score": 0.5,
             "online_to_store_ratio": 0.4, "avg_order_value": 120.0,
             "total_lifetime_value": 2400.0, "customer_tenure_days": 365,
             "purchase_frequency_30d": 2,
-        }])
+        }], columns=FEATURE_COLUMNS)
         dmatrix = xgb.DMatrix(features, feature_names=FEATURE_COLUMNS)
         pred1 = loaded_model.predict(dmatrix)[0]
         pred2 = loaded_model.predict(dmatrix)[0]

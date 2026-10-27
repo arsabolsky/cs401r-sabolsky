@@ -36,6 +36,7 @@ import sagemaker
 from sagemaker.inputs import TrainingInput
 from sagemaker.model_metrics import MetricsSource, ModelMetrics
 from sagemaker.workflow.functions import Join
+from sagemaker.workflow.execution_variables import ExecutionVariables
 from sagemaker.workflow.parameters import ParameterString
 from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.workflow.pipeline_context import PipelineSession
@@ -77,6 +78,7 @@ def build_pipeline(role_arn: str, bucket: str, region: str = "us-east-1") -> Pip
     # the code is the working tree CodeBuild cloned rather than a URI that could
     # point anywhere. CommitSha survives as a parameter for traceability.
     commit_sha = ParameterString("CommitSha", default_value="unknown")
+    data_timestamp = ParameterString("DataTimestamp", default_value="unknown")
     input_data = ParameterString(
         "InputDataS3Uri", default_value=f"s3://{bucket}/features/customers/")
     instance_type = ParameterString("TrainingInstanceType", default_value="ml.m5.large")
@@ -159,11 +161,18 @@ def build_pipeline(role_arn: str, bucket: str, region: str = "us-east-1") -> Pip
         model_package_group_name=MODEL_PACKAGE_GROUP,
         approval_status="PendingManualApproval",
         model_metrics=model_metrics,
+        customer_metadata_properties={
+            "TrainingDataS3Uri": input_data,
+            "FeatureEventTimeMax": data_timestamp,
+            "CodeCommitSha": commit_sha,
+            "PipelineStartTime": ExecutionVariables.START_DATETIME,
+            "EvaluationMetricsS3Uri": metrics_uri,
+        },
     )
 
     return Pipeline(
         name=PIPELINE_NAME,
-        parameters=[commit_sha, input_data, instance_type],
+        parameters=[commit_sha, data_timestamp, input_data, instance_type],
         steps=[train_step, register_step],
         sagemaker_session=session,
     )

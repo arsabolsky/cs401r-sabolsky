@@ -135,6 +135,14 @@ phases:
       # (defect 66).
       - export COMMIT_SHA=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-8)
 
+      # Capture the actual Feature Store ingestion timestamp from the same
+      # parquet snapshot that passed the pre_build freshness gate. SageMaker
+      # stores this Fractional feature as epoch seconds.
+      - |
+        export FEATURE_TIMESTAMP=$(python -c 'import glob, pandas as pd; files=glob.glob("data/features/**/*.parquet", recursive=True); assert files, "No staged feature parquet files"; values=[pd.to_numeric(pd.read_parquet(path, columns=["event_time"])["event_time"], errors="raise").max() for path in files]; print(f"{max(values):.0f}")')
+        echo "$FEATURE_TIMESTAMP" > /tmp/feature_timestamp.txt
+        echo "Feature snapshot event_time: $FEATURE_TIMESTAMP"
+
       # ── Upsert the SageMaker Pipeline ──────────────────────────────────
       # This is what used to be missing. The pipeline named here was started
       # by the old buildspec but was never defined by anything in the repo,
@@ -160,7 +168,9 @@ phases:
         EXECUTION_ARN=$(aws sagemaker start-pipeline-execution \
           --pipeline-name ${PIPELINE_NAME} \
           --pipeline-execution-display-name "codebuild-${COMMIT_SHA}" \
-          --pipeline-parameters "Name=CommitSha,Value=${COMMIT_SHA}" \
+          --pipeline-parameters \
+            "Name=CommitSha,Value=${COMMIT_SHA}" \
+            "Name=DataTimestamp,Value=${FEATURE_TIMESTAMP}" \
           --query "PipelineExecutionArn" \
           --output text)
         echo "Pipeline execution started: $EXECUTION_ARN"
@@ -223,6 +233,43 @@ phases:
           /tmp/eval_metrics.json
       - export EVAL_METRICS_PATH=/tmp/eval_metrics.json
       - cat /tmp/eval_metrics.json
+
+      # Attach run lineage directly to the newly registered Model Registry
+      # package. Model metrics are only known after the pipeline completes.
+      - |
+        python - <<'PY'
+        import json
+        import os
+        import boto3
+
+        with open("/tmp/eval_metrics.json", encoding="utf-8") as stream:
+            metrics = json.load(stream)
+        with open("/tmp/model_package_arn.txt", encoding="utf-8") as stream:
+            package_arn = stream.read().strip()
+        with open("/tmp/feature_timestamp.txt", encoding="utf-8") as stream:
+            feature_timestamp = stream.read().strip()
+
+        metadata = {
+            "TrainingDataS3Uri": f"s3://{os.environ['DATA_BUCKET']}/features/customers/",
+            "FeatureEventTimeMax": feature_timestamp,
+            "CodeCommitSha": os.environ["CODEBUILD_RESOLVED_SOURCE_VERSION"],
+            "EvaluationMetricsS3Uri": (
+                f"s3://{os.environ['DATA_BUCKET']}/artifacts/evaluations/"
+                f"{os.environ['COMMIT_SHA']}/evaluation_metrics.json"
+            ),
+            "AucRoc": str(metrics["auc_roc"]),
+            "PrecisionTop10": str(metrics["precision_top10"]),
+            "RecallTop10": str(metrics["recall_top10"]),
+            "LiftCiLow": str(metrics["lift_ci_low"]),
+            "LiftCiHigh": str(metrics["lift_ci_high"]),
+        }
+        boto3.client("sagemaker", region_name=os.environ["AWS_REGION"]).update_model_package(
+            ModelPackageArn=package_arn,
+            CustomerMetadataProperties=metadata,
+        )
+        print(f"Attached training lineage and metrics to {package_arn}")
+        print(json.dumps(metadata, indent=2, sort_keys=True))
+        PY
 
       # Pull the actual trained artifact too. tests/test_model.py is not only a
       # metrics gate -- TestModelLoading asserts the booster loads and that
