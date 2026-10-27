@@ -5,7 +5,8 @@
 data "aws_region" "current" {}
 
 locals {
-  scripts_dir = "${path.module}/../../../glue-scripts"
+  scripts_dir                = "${path.module}/../../../glue-scripts"
+  feature_engineering_module = "${path.module}/../../../data/feature_engineering.py"
 }
 
 resource "aws_glue_catalog_database" "this" {
@@ -68,6 +69,15 @@ resource "aws_s3_object" "feature_engineer_script" {
   etag   = filemd5("${local.scripts_dir}/feature_engineer.py")
 }
 
+# Ship the exact pandas calculations exercised by tests/test_features.py.
+# Glue adds this individual .py file to the script's Python path.
+resource "aws_s3_object" "feature_engineering_module" {
+  bucket = var.bucket_name
+  key    = "artifacts/glue/feature_engineering.py"
+  source = local.feature_engineering_module
+  etag   = filemd5(local.feature_engineering_module)
+}
+
 # Same network placement as transform; it reaches the Feature Store API through the NAT.
 resource "aws_glue_job" "feature_engineer" {
   name              = "${var.project}-${var.environment}-feature-engineer"
@@ -87,5 +97,6 @@ resource "aws_glue_job" "feature_engineer" {
     "--output_path"        = "s3://${var.bucket_name}/features/customers/"
     "--feature_group_name" = var.feature_group_name
     "--region"             = data.aws_region.current.name
+    "--extra-py-files"     = "s3://${var.bucket_name}/${aws_s3_object.feature_engineering_module.key}"
   }
 }
