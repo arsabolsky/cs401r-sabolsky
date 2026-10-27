@@ -40,6 +40,23 @@ resource "aws_iam_policy" "this" {
         "Resource" : "*"
       },
       {
+        "Sid" : "PassRoleToSageMakerTraining",
+        "Effect" : "Allow",
+        "Action" : "iam:PassRole",
+        "Resource" : aws_iam_role.ml_engineer.arn,
+        "Condition" : {
+          "StringEquals" : {
+            "iam:PassedToService" : "sagemaker.amazonaws.com"
+          }
+        }
+      },
+      {
+        "Sid" : "CreateChurnModelPackage",
+        "Effect" : "Allow",
+        "Action" : "sagemaker:CreateModelPackage",
+        "Resource" : "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:model-package/${var.project}-churn-models/*"
+      },
+      {
         "Sid" : "StudioSelfService",
         "Effect" : "Allow",
         "Action" : [

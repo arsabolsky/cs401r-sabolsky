@@ -13,3 +13,13 @@ AWS failure summary: Connection northstar-github is not available
 Build stage: not started
 
 Interpretation: this was the initial stack-created execution while the GitHub CodeConnections resource was still PENDING. It is an authorization/setup failure, not a test-failure demonstration and not evidence that test/build/evaluation/registration gates work. Rerun after completing GitHub authorization and append all later pipeline executions here.
+Lab 4 CI training-permission failure
+
+AWS account: 573693339848 (northstar), region: us-east-1
+CodePipeline execution: 12475a99-42f3-40a5-8e7e-1f40c5acfdb4
+CodeBuild build: northstar-ci:15662939-4ffe-4fa6-90e8-26f05ad8d065
+SageMaker Pipeline execution: arn:aws:sagemaker:us-east-1:573693339848:pipeline/northstar-churn-pipeline/execution/pwdyap1va7dk
+Result: PRE_BUILD passed; BUILD failed in the TrainChurnModel step before a training job started.
+Root cause: northstar-dev-MLEngineer lacked iam:PassRole for its own role when SageMaker attempted CreateTrainingJob.
+No model package was registered: package versions 1 and 2 remained the newest.
+The build-failure alarm entered ALARM. This is an infrastructure-permission failure, not the required deliberate-test-failure demonstration.

@@ -1,0 +1,11 @@
+Lab 4 SageMaker execution-role permission fix
+
+AWS account: 573693339848 (personal northstar profile), region: us-east-1
+Role: arn:aws:iam::573693339848:role/northstar-dev-MLEngineer
+Root cause from CodeBuild log: missing iam:PassRole on the role for SageMaker CreateTrainingJob.
+Terraform change: PassRoleToSageMakerTraining grants iam:PassRole on this exact role with iam:PassedToService=sagemaker.amazonaws.com.
+Second permission verified: CreateChurnModelPackage grants sagemaker:CreateModelPackage only on model-package/northstar-churn-models/*.
+Targeted Terraform result: 0 added, 1 changed, 0 destroyed.
+IAM policy simulation: sagemaker:CreateModelPackage allowed; iam:PassRole to SageMaker allowed.
+Full Terraform plan still proposes only the previously omitted unused SageMaker Studio domain and user profile; neither was applied.
+Build failure log: docs/lab4-build-permission-failure.log
