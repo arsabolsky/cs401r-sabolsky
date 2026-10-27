@@ -1,0 +1,30 @@
+===== CodeConnections =====
+Connection ARN: arn:aws:codeconnections:us-east-1:573693339848:connection/71ab0ff7-973e-4176-8c8c-c3c15847a57e
+-----------------------------------------------------------------------------------------------------------------------------------
+|                                                         ListConnections                                                         |
++------------------+---------------------------------------------------------------------------------------------------+----------+
+|  northstar-github|  arn:aws:codeconnections:us-east-1:573693339848:connection/71ab0ff7-973e-4176-8c8c-c3c15847a57e   |  PENDING |
++------------------+---------------------------------------------------------------------------------------------------+----------+
+===== Versioned CodePipeline artifact bucket =====
+{
+    "Status": "Enabled"
+}
+{
+    "BlockPublicAcls": true,
+    "IgnorePublicAcls": true,
+    "BlockPublicPolicy": true,
+    "RestrictPublicBuckets": true
+}
+[
+    {
+        "ApplyServerSideEncryptionByDefault": {
+            "SSEAlgorithm": "AES256"
+        },
+        "BucketKeyEnabled": false,
+        "BlockedEncryptionTypes": {
+            "EncryptionType": [
+                "SSE-C"
+            ]
+        }
+    }
+]
