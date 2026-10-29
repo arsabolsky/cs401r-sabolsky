@@ -1,0 +1,55 @@
+{
+    "ModelPackageGroupName": "northstar-churn-models",
+    "ModelPackageVersion": 2,
+    "ModelPackageRegistrationType": "Registered",
+    "ModelPackageArn": "arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/2",
+    "ModelPackageDescription": "NorthStar churn model trained 2026-10-25",
+    "CreationTime": "2026-10-24T18:07:45.346000-06:00",
+    "InferenceSpecification": {
+        "Containers": [
+            {
+                "Image": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-xgboost:3.0-5",
+                "ImageDigest": "sha256:0b5d9341baa09ab2432fc9efbc329425e69325ba33562b1e2a015fd6f16e3a78",
+                "ModelDataUrl": "s3://northstar-dev-data-573693339848/artifacts/models/churn/20261025T000744Z/model.tar.gz",
+                "ModelDataETag": "2073265d3ad4ec7aefc95117d9c47dc2",
+                "IsCheckpoint": false
+            }
+        ],
+        "SupportedTransformInstanceTypes": [
+            "ml.m5.large"
+        ],
+        "SupportedRealtimeInferenceInstanceTypes": [
+            "ml.m5.large"
+        ],
+        "SupportedContentTypes": [
+            "text/csv"
+        ],
+        "SupportedResponseMIMETypes": [
+            "text/csv"
+        ]
+    },
+    "ModelPackageStatus": "Completed",
+    "ModelPackageStatusDetails": {
+        "ValidationStatuses": [],
+        "ImageScanStatuses": []
+    },
+    "CertifyForMarketplace": false,
+    "ModelApprovalStatus": "PendingManualApproval",
+    "CreatedBy": {
+        "IamIdentity": {
+            "Arn": "arn:aws:iam::573693339848:user/cs401r-lab",
+            "PrincipalId": "AIDAYLEWJVDEGYM7DNTTK"
+        }
+    },
+    "CustomerMetadataProperties": {
+        "auc_roc": "0.7821",
+        "auc_vs_baseline": "0.0589",
+        "baseline_auc": "0.7232",
+        "lift_ci_high": "0.0776",
+        "lift_ci_low": "0.0404",
+        "n_val_samples": "3000",
+        "positive_rate_val": "0.22",
+        "precision_top10": "0.7167",
+        "recall_top10": "0.3258"
+    }
+}

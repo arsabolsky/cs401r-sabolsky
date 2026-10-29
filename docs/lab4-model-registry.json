@@ -1,0 +1,24 @@
+{
+    "ModelPackageSummaryList": [
+        {
+            "ModelPackageGroupName": "northstar-churn-models",
+            "ModelPackageVersion": 1,
+            "ModelPackageArn": "arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/1",
+            "ModelPackageDescription": "NorthStar churn model trained 2026-10-25",
+            "CreationTime": "2026-10-24T18:06:11.321000-06:00",
+            "ModelPackageStatus": "Completed",
+            "ModelApprovalStatus": "PendingManualApproval",
+            "ModelPackageRegistrationType": "Registered"
+        },
+        {
+            "ModelPackageGroupName": "northstar-churn-models",
+            "ModelPackageVersion": 2,
+            "ModelPackageArn": "arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/2",
+            "ModelPackageDescription": "NorthStar churn model trained 2026-10-25",
+            "CreationTime": "2026-10-24T18:07:45.346000-06:00",
+            "ModelPackageStatus": "Completed",
+            "ModelApprovalStatus": "PendingManualApproval",
+            "ModelPackageRegistrationType": "Registered"
+        }
+    ]
+}

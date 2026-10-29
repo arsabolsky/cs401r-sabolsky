@@ -1,0 +1,45 @@
+NorthStar Lab 2–4 AWS teardown
+Date: 2026-10-28
+Account: 573693339848 (personal `northstar` profile)
+Region: us-east-1
+
+Lab 4 CI stack:
+- CloudFormation stack `northstar-cicd` deleted.
+- CodePipeline `northstar-pipeline`, CodeBuild project `northstar-ci`, IAM roles,
+  CloudWatch alarm `northstar-ci-build-failure`, and SNS topic
+  `northstar-model-approvals` removed with the stack.
+- Versioned artifact bucket `northstar-dev-cicd-artifacts-573693339848` emptied and
+  deleted. CodeBuild log group `/aws/codebuild/northstar-ci` deleted.
+- GitHub CodeConnections connection `northstar-github` deleted.
+- Model package versions 1 and 2 and package group `northstar-churn-models` deleted.
+
+Lab 3:
+- `bash scripts/teardown-lab3.sh` completed successfully.
+- No SageMaker endpoints/configs, in-progress training/processing jobs, MLflow tracking
+  servers, AgentCore harnesses, gateways, policy engines, or runtimes remained.
+
+Lab 2:
+- `bash scripts/teardown-lab2.sh` completed successfully; Terraform destroyed 29 resources.
+- Versioned data bucket `northstar-dev-data-573693339848` emptied and deleted.
+- Feature Store catalog database, offline-store catalog, lineage contexts/artifacts,
+  Glue resources, VPC, IAM resources, and related network resources removed.
+- Script verification reported OK for NAT gateways, Elastic IPs, SageMaker domains,
+  feature groups, EFS filesystems, Glue jobs, NorthStar VPCs, lineage, and Glue databases.
+
+Final verification:
+- The only remaining `northstar-*` S3 bucket is `northstar-tfstate-573693339848`. It
+  contains Terraform state and is retained for a future rebuild; this is storage, not a
+  running service.
+- No NorthStar CloudFormation stack, CodePipeline, CodeBuild project/log group, SNS topic,
+  model package group, feature group, or GitHub connection remained.
+- The SageMaker spot quota request is still an open Service Quotas case. It does not create
+  or run resources; review or close the request in Service Quotas if desired.
+
+Pre-teardown snapshots retained in this repository:
+- `docs/lab4-build-quota-failure.log` (latest failed run; the quota failure is not the
+  required deliberate test-failure demonstration).
+- `docs/lab4-model-registry.json` and `docs/lab4-model-package.json` (versions 1–2 were
+  pending approval and are not a successful Lab 4 model result).
+- `docs/lab4-pipeline-runs.txt` (pipeline execution and teardown notes).
+
+The Lab 4 assignment is not complete and no `lab4-submit` tag was created.
