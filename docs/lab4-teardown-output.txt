@@ -17,6 +17,11 @@ Lab 3:
 - `bash scripts/teardown-lab3.sh` completed successfully.
 - No SageMaker endpoints/configs, in-progress training/processing jobs, MLflow tracking
   servers, AgentCore harnesses, gateways, policy engines, or runtimes remained.
+- The serverless SageMaker MLflow App `northstar-mlflow` was also deleted after the script;
+  its pre-deletion description is saved in `docs/lab4-pre-teardown-mlflow-app.json`.
+  Local run history remains in `docs/lab4-mlflow-runs.txt`.
+- Standalone SageMaker Pipeline `northstar-churn-pipeline`, its empty Experiment, and all
+  six failed-execution Trials were deleted. No training jobs had started.
 
 Lab 2:
 - `bash scripts/teardown-lab2.sh` completed successfully; Terraform destroyed 29 resources.
@@ -31,7 +36,8 @@ Final verification:
   contains Terraform state and is retained for a future rebuild; this is storage, not a
   running service.
 - No NorthStar CloudFormation stack, CodePipeline, CodeBuild project/log group, SNS topic,
-  model package group, feature group, or GitHub connection remained.
+  SageMaker Pipeline/Experiment/Trials, model package group, feature group, MLflow App,
+  or GitHub connection remained.
 - The SageMaker spot quota request is still an open Service Quotas case. It does not create
   or run resources; review or close the request in Service Quotas if desired.
 
