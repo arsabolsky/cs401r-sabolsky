@@ -30,6 +30,8 @@ REGION="${AWS_DEFAULT_REGION:-us-east-1}"
 PROJECT="${PROJECT:-northstar}"
 ENVIRONMENT="${ENVIRONMENT:-dev}"
 TF_DIR="infrastructure/environments/${ENVIRONMENT}"
+# Let a later lab retain its own teardown transcript without replacing Lab 2's.
+DESTROY_OUT="${DESTROY_OUT:-docs/lab2-destroy-output.txt}"
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text 2>/dev/null)
 # Without credentials every step below fails quietly and the final check used
 # to report OK anyway (2026-10-01). Stop here instead.
@@ -92,7 +94,7 @@ done
 echo "[3/7] terraform destroy"
 mkdir -p docs
 terraform -chdir="${TF_DIR}" destroy -auto-approve -input=false ${TF_DESTROY_ARGS:-} 2>&1 \
-  | tee docs/lab2-destroy-output.txt | tail -5
+  | tee "${DESTROY_OUT}" | tail -5
 
 # ── 4. Orphaned SageMaker EFS (the one that keeps billing) ────────────────────
 # With retention_policy { home_efs_file_system = "Delete" } on the Domain this
@@ -146,10 +148,10 @@ for sg in $(aws ec2 describe-security-groups \
 done
 
 # If destroy failed earlier because of the above, a second pass now succeeds.
-if grep -q "Error:" docs/lab2-destroy-output.txt 2>/dev/null; then
+if grep -q "Error:" "${DESTROY_OUT}" 2>/dev/null; then
   echo "      re-running destroy now that blockers are cleared"
   terraform -chdir="${TF_DIR}" destroy -auto-approve -input=false ${TF_DESTROY_ARGS:-} 2>&1 \
-    | tee -a docs/lab2-destroy-output.txt | tail -3
+    | tee -a "${DESTROY_OUT}" | tail -3
 fi
 
 # ── 6. Orphaned SageMaker lineage entities ────────────────────────────────────
@@ -160,12 +162,17 @@ echo "[6/7] Removing orphaned SageMaker lineage contexts and artifacts"
 for arn in $(aws sagemaker list-contexts --query 'ContextSummaries[*].ContextArn' --output text 2>/dev/null | tr '\t' '\n') \
            $(aws sagemaker list-artifacts --query 'ArtifactSummaries[*].ArtifactArn' --output text 2>/dev/null | tr '\t' '\n'); do
   [ -z "${arn}" ] && continue
-  aws sagemaker list-associations --destination-arn "${arn}" \
-    --query 'AssociationSummaries[*].[SourceArn,DestinationArn]' --output text 2>/dev/null | \
-  while read -r src dst; do
-    [ -z "${src}" ] && continue
-    aws sagemaker delete-association --source-arn "${src}" --destination-arn "${dst}" >/dev/null 2>&1 \
-      && echo "      unlinked ${src##*/} -> ${dst##*/}"
+  # Lineage artifacts can be the source of an association (for example, a
+  # dataset contributed to a training trial component) as well as its destination.
+  # Query both ends so no relationship keeps an orphaned artifact undeletable.
+  for endpoint in source destination; do
+    aws sagemaker list-associations "--${endpoint}-arn" "${arn}" \
+      --query 'AssociationSummaries[*].[SourceArn,DestinationArn]' --output text 2>/dev/null | \
+    while read -r src dst; do
+      [ -z "${src}" ] && continue
+      aws sagemaker delete-association --source-arn "${src}" --destination-arn "${dst}" >/dev/null 2>&1 \
+        && echo "      unlinked ${src##*/} -> ${dst##*/}"
+    done
   done
 done
 for a in $(aws sagemaker list-artifacts --query 'ArtifactSummaries[*].ArtifactArn' --output text 2>/dev/null | tr '\t' '\n'); do
