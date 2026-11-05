@@ -15,7 +15,7 @@ A candidate must meet the precision, recall, and baseline-lift gates above and s
 
 ## DataOps Maturity
 
-**Current level: 2.** `infrastructure/modules/glue/main.tf` defines repeatable ingestion and feature jobs. Glue and tests share `data/feature_engineering.py`. `tests/test_data.py` checks schemas, row grain, leakage, and freshness; the refreshed data passed all 28 checks in `docs/lab4-data-validation.log`. The 21 feature unit tests also passed. These checks block CI before training.
+**Current level: 2.** `infrastructure/modules/glue/main.tf` defines repeatable ingestion and feature jobs. Glue and tests share `data/feature_engineering.py`. `tests/test_data.py` checks schemas, row grain, leakage, and freshness; the refreshed data passed all 28 checks recorded in `docs/lab4-data-refresh-output.txt`. The 21 feature unit tests also passed. These checks block CI before training.
 
 **Gap to Level 3:** checks run only during code-triggered builds. No scheduled refresh or drift alert detects stale features during an idle period.
 
