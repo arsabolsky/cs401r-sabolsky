@@ -345,3 +345,76 @@ private_subnet_id = "subnet-0b40e981a62214439"
 public_subnet_id = "subnet-0f0feffdad986919b"
 s3_bucket_name = "northstar-dev-data-573693339848"
 vpc_id = "vpc-041b2ca363014d96e"
+
+===== Lab 4 restore verification 2026-11-05 06:15:08 UTC =====
+AWS account: 573693339848
+Region: us-east-1
+Targeted apply: 39 added, 0 changed, 0 destroyed; omitted module.sagemaker
+module.feature_store.aws_sagemaker_feature_group.feature_group
+module.glue.data.aws_region.current
+module.glue.aws_glue_catalog_database.this
+module.glue.aws_glue_connection.vpc
+module.glue.aws_glue_crawler.raw
+module.glue.aws_glue_job.feature_engineer
+module.glue.aws_glue_job.transform
+module.glue.aws_s3_object.feature_engineer_script
+module.glue.aws_s3_object.feature_engineering_module
+module.glue.aws_s3_object.transform_script
+module.iam.data.aws_caller_identity.current
+module.iam.data.aws_region.current
+module.iam.aws_iam_policy.data_engineer_policy
+module.iam.aws_iam_policy.model_monitor_policy
+module.iam.aws_iam_policy.this
+module.iam.aws_iam_role.data_engineer
+module.iam.aws_iam_role.ml_engineer
+module.iam.aws_iam_role.model_monitor
+module.iam.aws_iam_role_policy_attachment.data_engineer
+module.iam.aws_iam_role_policy_attachment.model_monitor
+module.iam.aws_iam_role_policy_attachment.this
+module.storage.data.aws_caller_identity.current
+module.storage.aws_s3_bucket.data
+module.storage.aws_s3_bucket_lifecycle_configuration.this[0]
+module.storage.aws_s3_bucket_public_access_block.this
+module.storage.aws_s3_bucket_server_side_encryption_configuration.this
+module.storage.aws_s3_bucket_versioning.this
+module.storage.aws_s3_object.prefixes["artifacts/"]
+module.storage.aws_s3_object.prefixes["features/"]
+module.storage.aws_s3_object.prefixes["processed/"]
+module.storage.aws_s3_object.prefixes["raw/"]
+module.vpc.aws_eip.this[0]
+module.vpc.aws_internet_gateway.this
+module.vpc.aws_nat_gateway.this[0]
+module.vpc.aws_route.private_nat[0]
+module.vpc.aws_route_table.private
+module.vpc.aws_route_table.this
+module.vpc.aws_route_table_association.private
+module.vpc.aws_route_table_association.this
+module.vpc.aws_security_group.this
+module.vpc.aws_subnet.private
+module.vpc.aws_subnet.public
+module.vpc.aws_vpc.this
+data_engineer_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-DataEngineer"
+feature_group_name = "northstar-dev-customer-features"
+glue_crawler_name = "northstar-dev-raw-crawler"
+glue_feature_job_name = "northstar-dev-feature-engineer"
+glue_transform_job_name = "northstar-dev-transform"
+ml_engineer_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-MLEngineer"
+model_monitor_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-ModelMonitor"
+private_subnet_id = "subnet-0a24a2b421b95f130"
+public_subnet_id = "subnet-07c68c65f1aa87988"
+s3_bucket_name = "northstar-dev-data-573693339848"
+vpc_id = "vpc-0cc5a748c1d08e607"
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile"
+[33m│[0m [0minstead.
+[33m╵[0m[0m
+{
+    "State": "available",
+    "NatGatewayId": "nat-08597925600366cc8"
+}
+{
+    "FeatureGroupStatus": "Created",
+    "FeatureGroupName": "northstar-dev-customer-features"
+}
