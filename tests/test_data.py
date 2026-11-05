@@ -342,12 +342,3 @@ class TestConsistency:
             f"Only {survival:.1%} of raw rows survived to processed. Expected "
             f"85-100%; the transform should remove only null-key and duplicate rows."
         )
-
-
-def test_lab4_ci_failure_demo():
-    """Temporary rubric demo: prove a test assertion halts CI before training.
-
-    This assertion is intentionally failing for one pushed commit and will be
-    removed in the required revert commit after the PRE_BUILD evidence is saved.
-    """
-    assert False, "Intentional Lab 4 CI failure demonstration; revert this test after capture."
