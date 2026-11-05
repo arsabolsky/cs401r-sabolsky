@@ -39,3 +39,80 @@ Current stack status after policy reconciliation: UPDATE_COMPLETE
 CodeBuild policy includes CreateModelPackage and UpdateModelPackage for the
 starter RegisterModel/post_build rejection path.
 GitHub connection status: PENDING; OAuth authorization is still required.
+
+===== Lab 4 CI prerequisites 2026-11-05 06:25:35 UTC =====
+AWS account: 573693339848 Region: us-east-1
+{
+    "Location": "/northstar-dev-cicd-artifacts-573693339848",
+    "BucketArn": "arn:aws:s3:::northstar-dev-cicd-artifacts-573693339848"
+}
+{
+    "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+    }
+}
+{
+    "Status": "Enabled"
+}
+{
+    "ServerSideEncryptionConfiguration": {
+        "Rules": [
+            {
+                "ApplyServerSideEncryptionByDefault": {
+                    "SSEAlgorithm": "AES256"
+                },
+                "BucketKeyEnabled": false,
+                "BlockedEncryptionTypes": {
+                    "EncryptionType": [
+                        "SSE-C"
+                    ]
+                }
+            }
+        ]
+    }
+}
+GitHub connection ARN: arn:aws:codeconnections:us-east-1:573693339848:connection/50db39ce-64f4-4e26-8adf-d4a3be893c02
+{
+    "ConnectionName": null,
+    "ConnectionStatus": null,
+    "ProviderType": null
+}
+
+===== Connection and artifact bucket verification 2026-11-05 06:29:39 UTC =====
+AWS account: 573693339848 Region: us-east-1
+-------------------------------------------------------------------------------------------------------------------------------------
+|                                                          ListConnections                                                          |
++------------------+--------------------------------------------------------------------------------------------------+-------------+
+|  northstar-github|  arn:aws:codeconnections:us-east-1:573693339848:connection/50db39ce-64f4-4e26-8adf-d4a3be893c02  |  AVAILABLE  |
++------------------+--------------------------------------------------------------------------------------------------+-------------+
+{
+    "Status": "Enabled"
+}
+{
+    "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+    }
+}
+{
+    "ServerSideEncryptionConfiguration": {
+        "Rules": [
+            {
+                "ApplyServerSideEncryptionByDefault": {
+                    "SSEAlgorithm": "AES256"
+                },
+                "BucketKeyEnabled": false,
+                "BlockedEncryptionTypes": {
+                    "EncryptionType": [
+                        "SSE-C"
+                    ]
+                }
+            }
+        ]
+    }
+}

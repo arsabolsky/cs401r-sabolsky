@@ -15,3 +15,10 @@ xgboost>=2.0.0
 # sagemaker 3.x removed those modules, so the upsert fails with ImportError.
 sagemaker>=2.200.0,<3.0.0
 pytest>=7.4.0
+# The repository-wide `pytest tests/` command also collects the existing RAG
+# contract tests, which import FAISS during collection even though the Lab 4
+# CodeBuild gate runs only the four churn suites.
+faiss-cpu>=1.8.0
+# The full repository suite includes a Lab 3 evaluation-plot test; the Lab 4
+# model pipeline itself does not need plotting, but `pytest tests/` does.
+matplotlib>=3.7.0
