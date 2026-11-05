@@ -1,17 +1,16 @@
 {
     "ModelPackageGroupName": "northstar-churn-models",
-    "ModelPackageVersion": 2,
+    "ModelPackageVersion": 3,
     "ModelPackageRegistrationType": "Registered",
-    "ModelPackageArn": "arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/2",
-    "ModelPackageDescription": "NorthStar churn model trained 2026-10-25",
-    "CreationTime": "2026-10-24T18:07:45.346000-06:00",
+    "ModelPackageArn": "arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/3",
+    "CreationTime": "2026-11-05T00:08:19.882000-07:00",
     "InferenceSpecification": {
         "Containers": [
             {
-                "Image": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-xgboost:3.0-5",
-                "ImageDigest": "sha256:0b5d9341baa09ab2432fc9efbc329425e69325ba33562b1e2a015fd6f16e3a78",
-                "ModelDataUrl": "s3://northstar-dev-data-573693339848/artifacts/models/churn/20261025T000744Z/model.tar.gz",
-                "ModelDataETag": "2073265d3ad4ec7aefc95117d9c47dc2",
+                "Image": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-xgboost:1.7-1",
+                "ImageDigest": "sha256:b4f13edb198529c460692015797fa1ca6a8ff1ed64a149297174d922121b8fc4",
+                "ModelDataUrl": "s3://northstar-dev-data-573693339848/artifacts/training/pipelines-ikq2gqphtdep-TrainChurnModel-WGtC72amZq/output/model.tar.gz",
+                "ModelDataETag": "addb67dc45561245361c7f3c951c95b5",
                 "IsCheckpoint": false
             }
         ],
@@ -19,7 +18,8 @@
             "ml.m5.large"
         ],
         "SupportedRealtimeInferenceInstanceTypes": [
-            "ml.m5.large"
+            "ml.m5.large",
+            "ml.t2.medium"
         ],
         "SupportedContentTypes": [
             "text/csv"
@@ -34,22 +34,45 @@
         "ImageScanStatuses": []
     },
     "CertifyForMarketplace": false,
-    "ModelApprovalStatus": "PendingManualApproval",
+    "ModelApprovalStatus": "Approved",
     "CreatedBy": {
+        "IamIdentity": {
+            "Arn": "arn:aws:sts::573693339848:assumed-role/northstar-dev-MLEngineer/sagemaker-pipeline-ikq2gqphtdep-RegisterChurnModel-R",
+            "PrincipalId": "AROAYLEWJVDEPVF5RZKT2:sagemaker-pipeline-ikq2gqphtdep-RegisterChurnModel-R"
+        }
+    },
+    "MetadataProperties": {
+        "GeneratedBy": "arn:aws:sagemaker:us-east-1:573693339848:pipeline/northstar-churn-pipeline/execution/ikq2gqphtdep"
+    },
+    "ModelMetrics": {
+        "ModelQuality": {
+            "Statistics": {
+                "ContentType": "application/json",
+                "S3Uri": "s3://northstar-dev-data-573693339848/artifacts/evaluations/07334000/evaluation_metrics.json"
+            }
+        },
+        "Bias": {},
+        "Explainability": {}
+    },
+    "LastModifiedTime": "2026-11-05T00:10:55.577000-07:00",
+    "LastModifiedBy": {
         "IamIdentity": {
             "Arn": "arn:aws:iam::573693339848:user/cs401r-lab",
             "PrincipalId": "AIDAYLEWJVDEGYM7DNTTK"
         }
     },
+    "ApprovalDescription": "Approved after reviewing the passing evaluation metrics and champion comparison.",
     "CustomerMetadataProperties": {
-        "auc_roc": "0.7821",
-        "auc_vs_baseline": "0.0589",
-        "baseline_auc": "0.7232",
-        "lift_ci_high": "0.0776",
-        "lift_ci_low": "0.0404",
-        "n_val_samples": "3000",
-        "positive_rate_val": "0.22",
-        "precision_top10": "0.7167",
-        "recall_top10": "0.3258"
-    }
+        "AucRoc": "0.7875",
+        "CodeCommitSha": "073340007032ecf419e2bee66b67b16a206e1539",
+        "EvaluationMetricsS3Uri": "s3://northstar-dev-data-573693339848/artifacts/evaluations/07334000/evaluation_metrics.json",
+        "FeatureEventTimeMax": "1793859589",
+        "LiftCiHigh": "0.0869",
+        "LiftCiLow": "0.0478",
+        "PipelineStartTime": "2026-11-05T07:04:52.032Z",
+        "PrecisionTop10": "0.7267",
+        "RecallTop10": "0.3303",
+        "TrainingDataS3Uri": "s3://northstar-dev-data-573693339848/features/customers/"
+    },
+    "SkipModelValidation": "None"
 }

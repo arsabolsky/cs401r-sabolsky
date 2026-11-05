@@ -23,7 +23,7 @@ A candidate must meet the precision, recall, and baseline-lift gates above and s
 
 ## MLOps Maturity
 
-**Current level: 2.** `models/churn/churn_model.py` carries forward Lab 3 training and baseline gates. `models/churn/pipeline_definition.py` trains on spot and registers as `PendingManualApproval`. `buildspec.yml` checks artifacts, champion regression, fairness, and lineage. The real-data run reproduced Lab 3 metrics: AUC 0.7821, precision 0.7167, and recall 0.3258. `docs/lab4-mlflow-runs.txt` records six runs across three configurations.
+**Current level: 2.** `models/churn/churn_model.py` carries forward Lab 3 training and baseline gates. `models/churn/pipeline_definition.py` trains on spot and registers as `PendingManualApproval`. `buildspec.yml` checks artifacts, champion regression, fairness, and lineage. The recovered CodeBuild run registered package version 3 with AUC 0.7875, precision@10% 0.7267, recall@10% 0.3303, and lift CI [0.0478, 0.0869] (`docs/lab4-build-green.log`). `docs/lab4-mlflow-runs.txt` records six runs across three configurations.
 
 **Gap to Level 3:** there is no production endpoint or post-deployment monitor. Promotion remains manual and the retraining triggers are not deployed.
 

@@ -1,68 +1,86 @@
-Lab 4 CodePipeline execution history
+Lab 4 CI evidence captured from AWS account 573693339848 in us-east-1.
+Captured: 2026-11-05T07:12:38Z
 
-Captured: 2026-10-26 19:17:43 MDT
-AWS account: 573693339848 (personal northstar profile, us-east-1)
-Pipeline: northstar-pipeline
-GitHub connection: northstar-github
+===== CodePipeline executions: start, status, commit, execution id =====
+2026-11-05T00:03:01.392000-07:00	Succeeded	073340007032ecf419e2bee66b67b16a206e1539	9f945c38-aadd-47aa-b144-34b3e963e5f0
+2026-11-04T23:58:48.262000-07:00	Failed	be26ce4f0cd14cfdb38d89139750232117e17559	c70b71e3-d6e3-4889-9557-876dde81dc73
+2026-11-04T23:50:42.989000-07:00	Succeeded	4ed2233a05317d766778b0fb9ce1b713de6d2d4e	cfa6965f-aba7-41fd-bdd4-de840fe3cdf9
+2026-11-04T23:40:18.916000-07:00	Succeeded	472ea898e5f30241baf97bdf79c60fe8ed1b4007	1d244aaf-2540-4ecf-bcae-0765f62a892e
+2026-11-04T23:31:25.837000-07:00	Failed	5aad6f8bbf0a9a95056ca53939d488d274c3ac6a	9b6d3191-2208-4068-a891-3ec7aba216dd
 
-Execution 1ea56ed4-dab2-44dd-9880-16067af4b6e7
-Status: Failed
-Stage: Source
-Action: GitHubSource
-AWS failure summary: Connection northstar-github is not available
-Build stage: not started
+===== CodeBuild builds: start, status, commit, build id, phases, pytest summary =====
+2026-11-05T00:03:07.516000-07:00	SUCCEEDED	073340007032ecf419e2bee66b67b16a206e1539	northstar-ci:c4750b74-28c6-4bf0-8526-dec6ac055ec4
+    SUBMITTED	SUCCEEDED
+    QUEUED	SUCCEEDED
+    PROVISIONING	SUCCEEDED
+    DOWNLOAD_SOURCE	SUCCEEDED
+    INSTALL	SUCCEEDED
+    PRE_BUILD	SUCCEEDED
+    BUILD	SUCCEEDED
+    POST_BUILD	SUCCEEDED
+    UPLOAD_ARTIFACTS	SUCCEEDED
+    FINALIZING	SUCCEEDED
+    COMPLETED	None
+    pytest: ============================= 28 passed in 10.73s ==============================
+    pytest: ============================== 21 passed in 0.67s ==============================
+    pytest: ======================== 21 passed, 3 warnings in 1.49s ========================
+2026-11-04T23:58:54.135000-07:00	FAILED	be26ce4f0cd14cfdb38d89139750232117e17559	northstar-ci:2709f0bb-fdfc-48d1-b208-d9c776193d86
+    SUBMITTED	SUCCEEDED
+    QUEUED	SUCCEEDED
+    PROVISIONING	SUCCEEDED
+    DOWNLOAD_SOURCE	SUCCEEDED
+    INSTALL	SUCCEEDED
+    PRE_BUILD	FAILED
+    FINALIZING	SUCCEEDED
+    COMPLETED	None
+    pytest: ========================= 1 failed, 28 passed in 8.86s =========================
+2026-11-04T23:50:49.133000-07:00	SUCCEEDED	4ed2233a05317d766778b0fb9ce1b713de6d2d4e	northstar-ci:313bff72-c9c5-44f0-80a2-dcfb96424cd2
+    SUBMITTED	SUCCEEDED
+    QUEUED	SUCCEEDED
+    PROVISIONING	SUCCEEDED
+    DOWNLOAD_SOURCE	SUCCEEDED
+    INSTALL	SUCCEEDED
+    PRE_BUILD	SUCCEEDED
+    BUILD	SUCCEEDED
+    POST_BUILD	SUCCEEDED
+    UPLOAD_ARTIFACTS	SUCCEEDED
+    FINALIZING	SUCCEEDED
+    COMPLETED	None
+    pytest: ============================== 28 passed in 9.31s ==============================
+    pytest: ============================== 21 passed in 0.60s ==============================
+    pytest: ======================== 21 passed, 3 warnings in 1.25s ========================
+2026-11-04T23:40:25.978000-07:00	SUCCEEDED	472ea898e5f30241baf97bdf79c60fe8ed1b4007	northstar-ci:5f6f4d7e-9fdd-46ed-a4e6-c78f295344f1
+    SUBMITTED	SUCCEEDED
+    QUEUED	SUCCEEDED
+    PROVISIONING	SUCCEEDED
+    DOWNLOAD_SOURCE	SUCCEEDED
+    INSTALL	SUCCEEDED
+    PRE_BUILD	SUCCEEDED
+    BUILD	SUCCEEDED
+    POST_BUILD	SUCCEEDED
+    UPLOAD_ARTIFACTS	SUCCEEDED
+    FINALIZING	SUCCEEDED
+    COMPLETED	None
+    pytest: ============================== 28 passed in 8.96s ==============================
+    pytest: ============================== 21 passed in 0.59s ==============================
+    pytest: ================== 19 passed, 1 skipped, 2 warnings in 1.21s ===================
+2026-11-04T23:31:32.918000-07:00	FAILED	5aad6f8bbf0a9a95056ca53939d488d274c3ac6a	northstar-ci:fc8ff0ce-5a67-4cbd-a910-35d5ffdfc468
+    SUBMITTED	SUCCEEDED
+    QUEUED	SUCCEEDED
+    PROVISIONING	SUCCEEDED
+    DOWNLOAD_SOURCE	SUCCEEDED
+    INSTALL	SUCCEEDED
+    PRE_BUILD	SUCCEEDED
+    BUILD	FAILED
+    POST_BUILD	SUCCEEDED
+    UPLOAD_ARTIFACTS	SUCCEEDED
+    FINALIZING	SUCCEEDED
+    COMPLETED	None
+    pytest: ============================== 28 passed in 9.18s ==============================
+    pytest: ============================== 21 passed in 0.58s ==============================
 
-Interpretation: this was the initial stack-created execution while the GitHub CodeConnections resource was still PENDING. It is an authorization/setup failure, not a test-failure demonstration and not evidence that test/build/evaluation/registration gates work. The connection was later authorized and reached AVAILABLE.
-Lab 4 CI training-permission failure
-
-AWS account: 573693339848 (northstar), region: us-east-1
-CodePipeline execution: 12475a99-42f3-40a5-8e7e-1f40c5acfdb4
-CodeBuild build: northstar-ci:15662939-4ffe-4fa6-90e8-26f05ad8d065
-SageMaker Pipeline execution: arn:aws:sagemaker:us-east-1:573693339848:pipeline/northstar-churn-pipeline/execution/pwdyap1va7dk
-Result: PRE_BUILD passed; BUILD failed in the TrainChurnModel step before a training job started.
-Root cause: northstar-dev-MLEngineer lacked iam:PassRole for its own role when SageMaker attempted CreateTrainingJob.
-No model package was registered: package versions 1 and 2 remained the newest.
-The build-failure alarm entered ALARM. This is an infrastructure-permission failure, not the required deliberate-test-failure demonstration.
-
-Execution 74b1292a-f822-4d5d-abd3-9c18dbadf57f — CodeBuild permission retry
-Status: Failed in BUILD while waiting for SageMaker Pipeline execution.
-SageMaker execution: 652ky9zsj0ac; TrainChurnModel failed before creating a training job.
-Failure: northstar-dev-MLEngineer lacked sagemaker:AddTags on the training-job resource.
-Model Registry remained at versions 1 and 2; no candidate package was created.
-This is an infrastructure-permission failure, not the deliberate PRE_BUILD test demo.
-Full build log: docs/lab4-build-addtags-permission-failure.log
-
-Execution 23d1a254-482b-4ca1-ae84-2d15777f6155 — SageMaker spot quota
-Source commit: d6f7ccc60a86f5c216f26c482866d0cf1955110e
-Status: Failed in BUILD after source/data tests passed; SageMaker did not start a training job.
-SageMaker execution: arn:aws:sagemaker:us-east-1:573693339848:pipeline/northstar-churn-pipeline/execution/yr6bbywy65xh
-Root cause: the personal account's applied Service Quota for `ml.m5.large` spot training is 0, while the pipeline requests one instance. No model package was registered; the newest package version remains 2.
-Follow-up: AWS Service Quotas rejected a desired value of 1 because its API requires a value above the default quota of 4. A request for 5 was submitted to the personal account and is PENDING (request ID `db113c2eb21848288d2244b4a6381c9ax3aGWk5f`). See `docs/lab4-quota-status.txt`. Do not rerun the pipeline until the applied quota allows the assigned instance.
-
-Alarm and SNS state checked 2026-10-27: `northstar-ci-build-failure` is ALARM and targets `northstar-model-approvals`. The email endpoint `arsabolsk.y2@gmail.com` was subscribed; AWS reports `PendingConfirmation`. This alarm reflects the infrastructure/quota failures above, not the required deliberate PRE_BUILD test failure. Confirm the subscription from that inbox before capturing the final alarm email evidence.
-
-## Runs triggered by documentation commits before shutdown
-
-The following executions were triggered by the three documentation commits. Each reached
-CodeBuild and failed while the SageMaker pipeline attempted to start the assigned
-`ml.m5.large` spot job; the account quota remained 0. They are infrastructure/quota
-failures, not the required deliberate test-failure demo. No new package was registered.
-
-| Source commit | CodePipeline execution | Result |
-|---|---|---|
-| `905f8e0` | `ac43cefa-5b30-4b21-aed1-03bae30ff8f3` | Failed at SageMaker training quota |
-| `d4f063c` | `ed2d354b-2dbc-458b-91cb-5a3b5d57394a` | Failed at SageMaker training quota |
-| `1548a85` | `9752737a-633c-4fd7-81d4-5da6df5398e7` | Failed at SageMaker training quota |
-
-The latest CodeBuild log is archived at `docs/lab4-build-quota-failure.log`; its PRE_BUILD
-phase completed, then the SageMaker execution `sf0z49uiui1d` failed before creating a
-training job. Model package versions 1 and 2 were both `PendingManualApproval`; their
-registry snapshot and version 2 description were saved before teardown. These are
-pre-teardown snapshots, not evidence of a successful Lab 4 model run.
-
-## Temporary shutdown
-
-On 2026-10-28, Terraform first removed the NorthStar private default route, NAT Gateway,
-and Elastic IP. At the user's request, the Lab 2–4 AWS resources were then fully torn down;
-see `docs/lab4-teardown-output.txt` for the final result. Only the Terraform state bucket
-was retained to support a future rebuild.
+===== SageMaker Pipeline executions: start, status, name =====
+2026-11-05T00:04:52.032000-07:00	Succeeded	codebuild-07334000
+2026-11-04T23:51:48.550000-07:00	Succeeded	codebuild-4ed2233a
+2026-11-04T23:41:22.815000-07:00	Succeeded	codebuild-472ea898
+2026-11-04T23:33:13.754000-07:00	Failed	codebuild-5aad6f8b
