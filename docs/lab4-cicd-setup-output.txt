@@ -116,3 +116,262 @@ AWS account: 573693339848 Region: us-east-1
         ]
     }
 }
+
+===== Deploy Lab 4 CI stack 2026-11-05 06:30:31 UTC =====
+AWS account: 573693339848 Region: us-east-1
+Git commit: 5aad6f8bbf0a9a95056ca53939d488d274c3ac6a
+
+Waiting for changeset to be created..
+Waiting for stack create/update to complete
+Successfully created/updated stack - northstar-cicd
+{
+    "Status": "CREATE_COMPLETE",
+    "Outputs": [
+        {
+            "OutputKey": "CodeBuildProjectName",
+            "OutputValue": "northstar-ci",
+            "Description": "CodeBuild project name",
+            "ExportName": "northstar-codebuild-project"
+        },
+        {
+            "OutputKey": "ModelApprovalTopicArn",
+            "OutputValue": "arn:aws:sns:us-east-1:573693339848:northstar-model-approvals",
+            "Description": "Subscribe an address to this topic or approvals go unnoticed:\n  aws sns subscribe --topic-arn <arn> --protocol email --notification-endpoint you@example.com",
+            "ExportName": "northstar-model-approvals-topic"
+        },
+        {
+            "OutputKey": "PipelineName",
+            "OutputValue": "northstar-pipeline",
+            "Description": "CodePipeline name",
+            "ExportName": "northstar-pipeline-name"
+        }
+    ]
+}
+
+===== SNS and pipeline verification 2026-11-05 06:31:52 UTC =====
+AWS account: 573693339848 Region: us-east-1
+{
+    "SubscriptionArn": "pending confirmation"
+}
+---------------------------------------------------------------
+|                  ListSubscriptionsByTopic                   |
++-------------------------+-----------+-----------------------+
+|        Endpoint         | Protocol  |    SubscriptionArn    |
++-------------------------+-----------+-----------------------+
+|  arsabolsk.y2@gmail.com |  email    |  PendingConfirmation  |
++-------------------------+-----------+-----------------------+
+----------------------------------------------------------------
+|                    ListPipelineExecutions                    |
++-----------------+--------------------------------------------+
+|  Id             |  9b6d3191-2208-4068-a891-3ec7aba216dd      |
+|  SourceRevision |  5aad6f8bbf0a9a95056ca53939d488d274c3ac6a  |
+|  StartTime      |  2026-11-04T23:31:25.837000-07:00          |
+|  Status         |  InProgress                                |
++-----------------+--------------------------------------------+
+[
+    {
+        "Stage": "Source",
+        "Status": "Succeeded",
+        "Actions": [
+            {
+                "Action": "GitHubSource",
+                "Status": "Succeeded",
+                "ExternalId": "5aad6f8bbf0a9a95056ca53939d488d274c3ac6a"
+            }
+        ]
+    },
+    {
+        "Stage": "Build",
+        "Status": "InProgress",
+        "Actions": [
+            {
+                "Action": "RunTestsAndTrain",
+                "Status": "InProgress",
+                "ExternalId": "northstar-ci:fc8ff0ce-5a67-4cbd-a910-35d5ffdfc468"
+            }
+        ]
+    },
+    {
+        "Stage": "ManualApproval",
+        "Status": null,
+        "Actions": [
+            {
+                "Action": "ReviewModelMetrics",
+                "Status": null,
+                "ExternalId": null
+            }
+        ]
+    }
+]
+----------------------------------------------------------------
+|                    ListPipelineExecutions                    |
++-----------------+--------------------------------------------+
+|  Id             |  9b6d3191-2208-4068-a891-3ec7aba216dd      |
+|  SourceRevision |  5aad6f8bbf0a9a95056ca53939d488d274c3ac6a  |
+|  StartTime      |  2026-11-04T23:31:25.837000-07:00          |
+|  Status         |  InProgress                                |
++-----------------+--------------------------------------------+
+[
+    "northstar-ci:fc8ff0ce-5a67-4cbd-a910-35d5ffdfc468"
+]
+---------------------------------------------------
+|            ListSubscriptionsByTopic             |
++-------------------------+-----------------------+
+|        Endpoint         |    SubscriptionArn    |
++-------------------------+-----------------------+
+|  arsabolsk.y2@gmail.com |  PendingConfirmation  |
++-------------------------+-----------------------+
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile"
+[33m│[0m [0minstead.
+[33m╵[0m[0m
+[0m[1mmodule.iam.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.iam.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.storage.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.iam.aws_iam_role.model_monitor: Refreshing state... [id=northstar-dev-ModelMonitor][0m
+[0m[1mmodule.iam.aws_iam_role.ml_engineer: Refreshing state... [id=northstar-dev-MLEngineer][0m
+[0m[1mmodule.iam.aws_iam_role.data_engineer: Refreshing state... [id=northstar-dev-DataEngineer][0m
+[0m[1mmodule.iam.data.aws_region.current: Read complete after 0s [id=us-east-1][0m
+[0m[1mmodule.storage.data.aws_caller_identity.current: Read complete after 0s [id=573693339848][0m
+[0m[1mmodule.storage.aws_s3_bucket.data: Refreshing state... [id=northstar-dev-data-573693339848][0m
+[0m[1mmodule.iam.data.aws_caller_identity.current: Read complete after 0s [id=573693339848][0m
+[0m[1mmodule.iam.aws_iam_policy.this: Refreshing state... [id=arn:aws:iam::573693339848:policy/NorthStarMLEngineerPolicy][0m
+[0m[1mmodule.iam.aws_iam_role_policy_attachment.this: Refreshing state... [id=northstar-dev-MLEngineer-20261105061214192300000001][0m
+[0m[1mmodule.iam.aws_iam_policy.model_monitor_policy: Refreshing state... [id=arn:aws:iam::573693339848:policy/northstar-dev-ModelMonitorPolicy][0m
+[0m[1mmodule.iam.aws_iam_policy.data_engineer_policy: Refreshing state... [id=arn:aws:iam::573693339848:policy/northstar-dev-DataEngineerPolicy][0m
+[0m[1mmodule.iam.aws_iam_role_policy_attachment.data_engineer: Refreshing state... [id=northstar-dev-DataEngineer-20261105061215893900000003][0m
+[0m[1mmodule.iam.aws_iam_role_policy_attachment.model_monitor: Refreshing state... [id=northstar-dev-ModelMonitor-20261105061215893800000002][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [33m~[0m update in-place[0m
+
+Terraform will perform the following actions:
+
+[1m  # module.iam.aws_iam_policy.this[0m will be updated in-place
+[0m  [33m~[0m[0m resource "aws_iam_policy" "this" {
+        id               = "arn:aws:iam::573693339848:policy/NorthStarMLEngineerPolicy"
+        name             = "NorthStarMLEngineerPolicy"
+      [33m~[0m[0m policy           = jsonencode(
+          [33m~[0m[0m {
+              [33m~[0m[0m Statement = [
+                    [90m# (2 unchanged elements hidden)[0m[0m
+                    {
+                        Action   = "sagemaker:CreateModelPackage"
+                        Effect   = "Allow"
+                        Resource = "arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/*"
+                        Sid      = "CreateChurnModelPackage"
+                    },
+                  [33m~[0m[0m {
+                      [33m~[0m[0m Action   = "sagemaker:AddTags" [33m->[0m[0m "sagemaker:CreateModelPackageGroup"
+                      [33m~[0m[0m Resource = [
+                          [31m-[0m[0m "arn:aws:sagemaker:us-east-1:573693339848:training-job/*",
+                          [31m-[0m[0m "arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/*",
+                        ] [33m->[0m[0m "arn:aws:sagemaker:us-east-1:573693339848:model-package-group/northstar-churn-models"
+                      [33m~[0m[0m Sid      = "TagPipelineTrainingAndModels" [33m->[0m[0m "CreateChurnModelPackageGroup"
+                        [90m# (1 unchanged attribute hidden)[0m[0m
+                    },
+                  [32m+[0m[0m {
+                      [32m+[0m[0m Action   = "sagemaker:AddTags"
+                      [32m+[0m[0m Effect   = "Allow"
+                      [32m+[0m[0m Resource = [
+                          [32m+[0m[0m "arn:aws:sagemaker:us-east-1:573693339848:training-job/*",
+                          [32m+[0m[0m "arn:aws:sagemaker:us-east-1:573693339848:model-package/northstar-churn-models/*",
+                          [32m+[0m[0m "arn:aws:sagemaker:us-east-1:573693339848:model-package-group/northstar-churn-models",
+                        ]
+                      [32m+[0m[0m Sid      = "TagPipelineTrainingAndModels"
+                    },
+                    {
+                        Action   = [
+                            "sagemaker:DescribeDomain",
+                            "sagemaker:ListDomains",
+                            "sagemaker:DescribeUserProfile",
+                            "sagemaker:ListUserProfiles",
+                            "sagemaker:DescribeSpace",
+                            "sagemaker:ListSpaces",
+                            "sagemaker:CreateSpace",
+                            "sagemaker:UpdateSpace",
+                            "sagemaker:DeleteSpace",
+                            "sagemaker:DescribeApp",
+                            "sagemaker:ListApps",
+                            "sagemaker:CreateApp",
+                            "sagemaker:DeleteApp",
+                            "sagemaker:CreatePresignedDomainUrl",
+                        ]
+                        Effect   = "Allow"
+                        Resource = [
+                            "arn:aws:sagemaker:*:*:domain/*",
+                            "arn:aws:sagemaker:*:*:user-profile/*",
+                            "arn:aws:sagemaker:*:*:space/*",
+                            "arn:aws:sagemaker:*:*:app/*",
+                        ]
+                        Sid      = "StudioSelfService"
+                    },
+                    [90m# (4 unchanged elements hidden)[0m[0m
+                ]
+                [90m# (1 unchanged attribute hidden)[0m[0m
+            }
+        )
+        tags             = {}
+        [90m# (7 unchanged attributes hidden)[0m[0m
+    }
+
+[1mPlan:[0m [0m0 to add, 1 to change, 0 to destroy.
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mResource targeting is in effect[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mYou are creating a plan with the -target option, which means that the
+[33m│[0m [0mresult of this plan may not represent all of the changes requested by the
+[33m│[0m [0mcurrent configuration.
+[33m│[0m [0m
+[33m│[0m [0mThe -target option is not for routine use, and is provided only for
+[33m│[0m [0mexceptional situations such as recovering from errors or mistakes, or when
+[33m│[0m [0mTerraform specifically suggests to use it as part of an error message.
+[33m╵[0m[0m
+[90m
+─────────────────────────────────────────────────────────────────────────────[0m
+
+Saved the plan to: /private/tmp/lab4-iam-fix.tfplan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "/private/tmp/lab4-iam-fix.tfplan"
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile"
+[33m│[0m [0minstead.
+[33m╵[0m[0m
+[0m[1mmodule.iam.aws_iam_policy.this: Modifying... [id=arn:aws:iam::573693339848:policy/NorthStarMLEngineerPolicy][0m[0m
+[0m[1mmodule.iam.aws_iam_policy.this: Modifications complete after 1s [id=arn:aws:iam::573693339848:policy/NorthStarMLEngineerPolicy][0m
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mApplied changes may be incomplete[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe plan was created with the -target option in effect, so some changes
+[33m│[0m [0mrequested in the configuration may have been ignored and the output values
+[33m│[0m [0mmay not be fully updated. Run the following command to verify that no other
+[33m│[0m [0mchanges are pending:
+[33m│[0m [0m    terraform plan
+[33m│[0m [0m
+[33m│[0m [0mNote that the -target option is not suitable for routine use, and is
+[33m│[0m [0mprovided only for exceptional situations such as recovering from errors or
+[33m│[0m [0mmistakes, or when Terraform specifically suggests to use it as part of an
+[33m│[0m [0merror message.
+[33m╵[0m[0m
+[0m[1m[32m
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0mdata_engineer_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-DataEngineer"
+feature_group_name = "northstar-dev-customer-features"
+glue_crawler_name = "northstar-dev-raw-crawler"
+glue_feature_job_name = "northstar-dev-feature-engineer"
+glue_transform_job_name = "northstar-dev-transform"
+ml_engineer_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-MLEngineer"
+model_monitor_role_arn = "arn:aws:iam::573693339848:role/northstar-dev-ModelMonitor"
+private_subnet_id = "subnet-0a24a2b421b95f130"
+public_subnet_id = "subnet-07c68c65f1aa87988"
+s3_bucket_name = "northstar-dev-data-573693339848"
+vpc_id = "vpc-0cc5a748c1d08e607"

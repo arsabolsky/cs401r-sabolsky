@@ -56,13 +56,22 @@ resource "aws_iam_policy" "this" {
         "Action" : "sagemaker:CreateModelPackage",
         "Resource" : "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:model-package/${var.project}-churn-models/*"
       },
+      # RegisterModel calls CreateModelPackageGroup and SageMaker checks AddTags
+      # on the group ARN. Keep both permissions scoped to this one churn group.
+      {
+        "Sid" : "CreateChurnModelPackageGroup",
+        "Effect" : "Allow",
+        "Action" : "sagemaker:CreateModelPackageGroup",
+        "Resource" : "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:model-package-group/${var.project}-churn-models"
+      },
       {
         "Sid" : "TagPipelineTrainingAndModels",
         "Effect" : "Allow",
         "Action" : "sagemaker:AddTags",
         "Resource" : [
           "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:training-job/*",
-          "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:model-package/${var.project}-churn-models/*"
+          "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:model-package/${var.project}-churn-models/*",
+          "arn:aws:sagemaker:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:model-package-group/${var.project}-churn-models"
         ]
       },
       {
